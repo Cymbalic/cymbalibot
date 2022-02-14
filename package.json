@@ -1,0 +1,20 @@
+{
+  "name": "Cymbalibot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "@replit/database": "^2.0.1",
+    "discord.js": "^13.3.1",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "node": "^16.13.0"
+  },
+  "scripts": {
+    "start": "node ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
