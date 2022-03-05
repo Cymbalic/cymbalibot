@@ -19,45 +19,57 @@ client.on('ready', () => {
 
 // actual bot code
 client.on('messageCreate', async msg => {
+  // filters a message for an empty string, @everyone, and @here
+  // returns true on success, returns an error on failure
+  function filterEveryone(text) {
+    try {
+      if (text === '') throw 'Empty string';
+      if (!(text.search(/@everyone/)===-1)) throw 'Mentions everyone';
+      if (!(text.search(/@here/)===-1)) throw 'Mentions here';
+    } catch(err) {
+      return err;
+    }
+    return true;
+  }
   // makes ! a prefix and doesn't look at messages without it
   const prefixes = ["!"];
   const prefix = prefixes.find(p => msg.content.startsWith(p));
   // reacts to messages containing fruit with fruit
+  if (!(msg.content.search(/pear/i)===-1) || !(msg.content.search(/🍐/i)===-1) || !(msg.content.search(/par/i)===-1)) {
+    msg.react("🍐");
+  } 
   if (!(msg.content.search(/🍌/i)===-1) || !(msg.content.search(/bnn/i)===-1) || !(msg.content.search(/ana/i)===-1)) {
     msg.react("🍌");
   } 
-  if (!(msg.content.search(/rap/i)===-1) || !(msg.content.search(/🍇/i)===-1)) {
-    msg.react("🍇");
+  if (!(msg.content.search(/ngo/i)===-1) || !(msg.content.search(/🥭/i)===-1)) {
+    msg.react("🥭");
   } 
-  if (!(msg.content.search(/herry/i)===-1) || !(msg.content.search(/erri/i)===-1) || !(msg.content.search(/🍒/i)===-1) || !(msg.content.search(/eri/i)===-1)) {
-    msg.react("🍒");
+  if ((msg.content.search(/ang/i) < msg.content.search(/mang/i)) || msg.content.search(/mang/i)===-1 && !(msg.content.search(/ang/i)===-1) || !(msg.content.search(/🍊/i)===-1) || !(msg.content.search(/ ang/i)===-1)) {
+    msg.react("🍊");
   } 
   if (!(msg.content.search(/oco/i)===-1) || !(msg.content.search(/🥥/i)===-1)) {
     msg.react("🥥");
   } 
-  if (!(msg.content.search(/pinea/i)===-1) || !(msg.content.search(/🍍/i)===-1)) {
-    msg.react("🍍");
+  if (!(msg.content.search(/herry/i)===-1) || !(msg.content.search(/erri/i)===-1) || !(msg.content.search(/🍒/i)===-1) || !(msg.content.search(/eri/i)===-1)) {
+    msg.react("🍒");
   } 
   if ((msg.content.search(/apple/i) < msg.content.search(/pineapple/i)) || msg.content.search(/eapple/i)===-1 && !(msg.content.search(/apple/i)===-1) || !(msg.content.search(/🍎/i)===-1) || !(msg.content.search(/ apple/i)===-1)) {
     msg.react("🍎");
   } 
-  if (!(msg.content.search(/pear/i)===-1) || !(msg.content.search(/🍐/i)===-1) || !(msg.content.search(/par/i)===-1)) {
-    msg.react("🍐");
-  } 
-  if (!(msg.content.search(/ang/i)===-1) || !(msg.content.search(/🍊/i)===-1)) {
-    msg.react("🍊");
-  } 
-  if (!(msg.content.search(/awb/i)===-1) || !(msg.content.search(/🍓/i)===-1)){
-    msg.react("🍓");
+  if (!(msg.content.search(/pinea/i)===-1) || !(msg.content.search(/🍍/i)===-1)) {
+    msg.react("🍍");
   } 
   if (!(msg.content.search(/ueb/i)===-1) || !(msg.content.search(/🫐/i)===-1)) {
     msg.react("🫐");
   } 
+  if (!(msg.content.search(/rap/i)===-1) || !(msg.content.search(/🍇/i)===-1)) {
+    msg.react("🍇");
+  } 
   if (!(msg.content.search(/aterm/i)===-1) || !(msg.content.search(/🍉/i)===-1)){
     msg.react("🍉");
   } 
-  if (!(msg.content.search(/ngo/i)===-1) || !(msg.content.search(/🥭/i)===-1)) {
-    msg.react("🥭");
+  if (!(msg.content.search(/awb/i)===-1) || !(msg.content.search(/🍓/i)===-1)){
+    msg.react("🍓");
   } 
   // don't reply to yourself silly
   if (msg.author.bot) return;
@@ -69,12 +81,10 @@ client.on('messageCreate', async msg => {
   // sends a list of all commands
   if (command === 'help') {
     // if !help alliance then alliance help
-    if (args[0] === 'alliance') {
-      msg.channel.send('Currently supports only 2 player alliances. Example command would be:\n!alliance super kedi\nwhere super kedi are both role names. Do not use @s!');
-    } else if(args[0] === 'voting') {
+    if(args[0] === 'voting') {
       msg.channel.send("Use without arguments to show all votes. Use a username to show only that player's vote.");
     } else {
-      msg.channel.send('!help\n!ping\n!spreadsheet\n!apply\n!say\n!alliance\n!stop\n!ranked\n!vote\n!voting\n!dvote');
+      msg.channel.send('!help\n!ping\n!spreadsheet\n!apply\n!say\n!ranked\n!vote\n!voting\n!dvote');
     }
   }
 
@@ -85,9 +95,15 @@ client.on('messageCreate', async msg => {
 
   // voting command
   if (command === 'vote') {
-    let text = args.join(" ");
-    db.set(msg.author.username, text).then(() => {});
-    msg.channel.send('Vote accepted.');
+    try {
+      let vote = args.join(" ");
+      if(filterEveryone(vote) === true) {
+        db.set(msg.author.username, vote);
+        msg.channel.send('Vote accepted.');
+      } else throw filterEveryone(vote);
+    } catch(err) {
+      msg.channel.send('Something went wrong. Error: '+err);
+    }
   }
 
   // removes a vote from selected player
@@ -95,10 +111,10 @@ client.on('messageCreate', async msg => {
     try {
       if (!msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) throw 'No permission!';
       db.list().then(keys => {
-      let text = args.join(" ");
+      let name = args.join(" ");
       for(let i=0;i<keys.length;i++) {
-        if(text == keys[i]) {
-          db.delete(text).then(() => {});
+        if(name == keys[i]) {
+          db.delete(name);
           msg.channel.send('Vote deleted.');
           return;
         } 
@@ -107,7 +123,6 @@ client.on('messageCreate', async msg => {
       });
     } catch(err) {
       msg.channel.send('Something went wrong. Error: '+err);
-      return;
     }
   }
   
@@ -128,17 +143,6 @@ client.on('messageCreate', async msg => {
         });
       }
       });
-    }
-  }
-  
-  // shut down the bot, only Cymbalic can use
-  if (command === 'stop') {
-    if (msg.author.id != 644235790901182494) {
-      msg.channel.send('No permission!');
-    } else {
-      msg.channel.send('Shutting down...');
-      await new Promise(r => setTimeout(r, 1));
-      process.exit();
     }
   }
 
@@ -171,65 +175,12 @@ client.on('messageCreate', async msg => {
   // repeats whatever comes next, does not allow empty strings, @everyone, nor @here
   if (command === "say") {
     try {
-      let text = args.join(" ");
-      if (text === '') return;
-      if (!(text.search(/@everyone/)===-1)) throw 'Mentions everyone';
-      if (!(text.search(/@here/)===-1)) throw 'Mentions here';
-      msg.channel.send(text);
+      let string = args.join(' ');
+      if(filterEveryone(string) === true) {
+        msg.channel.send(string);
+      } else throw filterEveryone(string);
     } catch(err) {
       msg.channel.send('Something went wrong. Error: '+err);
-    }
-  }
-
-  // makes an alliance of 2 people
-  if (command === "alliance") {
-    // tests for permission to use command
-    if (!(msg.member.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS))) {
-      msg.channel.send('No permission!');
-      return;
-    }
-    
-    // gets role from name
-    const role = [args[0], args[1], args[2]];
-    try {
-      role[0] = msg.guild.roles.cache.find(role => role.name == args[0]);
-      role[1] = msg.guild.roles.cache.find(role => role.name == args[1]);
-      role[2] = msg.guild.roles.cache.find(role => role.name == args[2]);
-      if(role[0]===undefined || role[1]===undefined) throw 'Invalid role';
-      if(role[2]!==undefined) throw 'Too large';
-    } catch(err) {
-      msg.channel.send('Something went wrong. Error: '+err);
-      return;
-    }
-    
-    // create channel
-    // this try catch is nessesary to prevent it from crashing on startup
-    try {
-      msg.guild.channels.create(args[0]+'-'+args[1], {
-        type: 'text',
-        parent: '907324558862852136',
-        permissionOverwrites: [
-          {
-            id: msg.guild.id,
-            deny: ['VIEW_CHANNEL'],
-          },
-          {
-            id: '907056892654796811',
-            allow: ['VIEW_CHANNEL'],
-            deny: ['SEND_MESSAGES'],
-          },
-          {
-            id: role[0],
-            allow: ['VIEW_CHANNEL'],
-          },
-          {
-            id: role[1],
-            allow: ['VIEW_CHANNEL'],
-          },
-        ],
-      });
-    } catch(err) {
-      msg.channel.send('Something went wrong. This message is only here because the bot crashes otherwise and I have no idea why. Error: '+err);
     }
   }
 }
