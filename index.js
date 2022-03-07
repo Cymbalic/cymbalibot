@@ -31,6 +31,14 @@ client.on('messageCreate', async msg => {
     }
     return true;
   }
+  function checkForAdmin() {
+    // tests for permission to use command
+    if (!(msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR))) {
+      msg.channel.send('No permission!');
+      return false;
+    }
+    return true;
+  }
   // makes ! a prefix and doesn't look at messages without it
   const prefixes = ["!"];
   const prefix = prefixes.find(p => msg.content.startsWith(p));
@@ -84,7 +92,7 @@ client.on('messageCreate', async msg => {
     if(args[0] === 'voting') {
       msg.channel.send("Use without arguments to show all votes. Use a username to show only that player's vote.");
     } else {
-      msg.channel.send('!help\n!ping\n!spreadsheet\n!apply\n!say\n!ranked\n!vote\n!voting\n!dvote');
+      msg.channel.send('!help\n!ping\n!spreadsheet\n!apply\n!say\n!ranked\n!vote\n!voting\n!dvote\ndvotes');
     }
   }
 
@@ -95,21 +103,27 @@ client.on('messageCreate', async msg => {
 
   // voting command
   if (command === 'vote') {
-    try {
-      let vote = args.join(" ");
-      if(filterEveryone(vote) === true) {
-        db.set(msg.author.username, vote);
-        msg.channel.send('Vote accepted.');
-      } else throw filterEveryone(vote);
-    } catch(err) {
-      msg.channel.send('Something went wrong. Error: '+err);
+    if (msg.member.roles.cache.some(role => role.name === 'Alive') || checkForAdmin()) {
+      if (args[0] === undefined) {
+        db.get(msg.author.username).then(value => {msg.channel.send('Currently voting for '+value);});
+      }
+      try {
+        let vote = args.join(" ");
+        if(filterEveryone(vote) === true) {
+          db.set(msg.author.username, vote);
+          msg.channel.send('Vote accepted.');
+        } else throw filterEveryone(vote);
+      } catch(err) {
+        msg.channel.send('Something went wrong. Error: '+err);
+      }
+    } else {
+      msg.channel.send('No permission!');
     }
   }
 
   // removes a vote from selected player
-  if (command === 'dvote') {
+  if (command === 'dvote' && checkForAdmin()) {
     try {
-      if (!msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) throw 'No permission!';
       db.list().then(keys => {
       let name = args.join(" ");
       for(let i=0;i<keys.length;i++) {
@@ -128,24 +142,34 @@ client.on('messageCreate', async msg => {
   
   // gets all votes/selected player's vote
   if (command === 'voting') {
-    // tests for permission to use command
-    if (!(msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR))) {
-      msg.channel.send('No permission!');
-      return;
-    }
-    if (args[0] != undefined) {
-      db.get(args[0]).then(value => {msg.channel.send(args[0]+': '+value)});
-    } else {
-      db.list().then(keys => {
-      for (let i=0; i<keys.length; i++) {
-        db.get(keys[i]).then(value => {
-        msg.channel.send(keys[i]+': '+value);
+    if (msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) || msg.channel.id == 694422951092813824) {
+      if (args[0] != undefined) {
+        db.get(args[0]).then(value => {msg.channel.send(args[0]+': '+value)});
+      } else {
+        db.list().then(keys => {
+        for (let i=0; i<keys.length; i++) {
+          db.get(keys[i]).then(value => {
+          msg.channel.send(keys[i]+': '+value);
+          });
+        }
         });
       }
-      });
+    } else {
+      msg.channel.send('No permission!');
     }
   }
 
+  // deletes all votes
+  if (command === 'dvotes' && checkForAdmin()) {
+    checkForAdmin();
+    db.list().then(keys => {
+    for (let i=keys.length-1; i>-1; i--) {
+      db.delete(keys[i]);
+    }
+    msg.channel.send('All votes deleted.');
+    });
+  }
+  
   // runs a command, only Cymbalic can use
   if (command === 'run') {
     if (msg.author.id != 644235790901182494) {
@@ -162,7 +186,7 @@ client.on('messageCreate', async msg => {
     msg.channel.send('https://docs.google.com/spreadsheets/d/1Ne3NzkaSV1boKZZHuzbeKdkBCzj9j6Sfy9x7f6sX0v8/edit?usp=sharing');
   } 
 
-  // sends a link to S7 applications by !apply or !application
+  // sends a link to S9 applications by !apply or !application
   if (command === 'apply' || command === 'application') {
     msg.channel.send('Applications are not open!');
   }
@@ -187,3 +211,5 @@ client.on('messageCreate', async msg => {
 );
 
 client.login(process.env.TOKEN);
+
+// do a funny dm to someone: client.users.fetch('ID GOES HERE').then((user) => {user.send("funny");});
