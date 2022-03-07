@@ -49,10 +49,10 @@ client.on('messageCreate', async msg => {
   if (!(msg.content.search(/🍌/i)===-1) || !(msg.content.search(/bnn/i)===-1) || !(msg.content.search(/ana/i)===-1)) {
     msg.react("🍌");
   } 
-  if (!(msg.content.search(/ngo/i)===-1) || !(msg.content.search(/🥭/i)===-1)) {
+  if (!(msg.content.search(/ngo/i)===-1) || !(msg.content.search(/🥭/i)===-1) || !(msg.content.search(/man/i)===-1)) {
     msg.react("🥭");
   } 
-  if ((msg.content.search(/ang/i) < msg.content.search(/mang/i)) || msg.content.search(/mang/i)===-1 && !(msg.content.search(/ang/i)===-1) || !(msg.content.search(/🍊/i)===-1) || !(msg.content.search(/ ang/i)===-1)) {
+  if ((msg.content.search(/ang/i) < msg.content.search(/mang/i)) || msg.content.search(/mang/i)===-1 && !(msg.content.search(/ang/i)===-1) || !(msg.content.search(/🍊/i)===-1) || !(msg.content.search(/ ang/i)===-1) || !(msg.content.search(/rang/i)===-1)) {
     msg.react("🍊");
   } 
   if (!(msg.content.search(/oco/i)===-1) || !(msg.content.search(/🥥/i)===-1)) {
@@ -61,10 +61,10 @@ client.on('messageCreate', async msg => {
   if (!(msg.content.search(/herry/i)===-1) || !(msg.content.search(/erri/i)===-1) || !(msg.content.search(/🍒/i)===-1) || !(msg.content.search(/eri/i)===-1)) {
     msg.react("🍒");
   } 
-  if ((msg.content.search(/apple/i) < msg.content.search(/pineapple/i)) || msg.content.search(/eapple/i)===-1 && !(msg.content.search(/apple/i)===-1) || !(msg.content.search(/🍎/i)===-1) || !(msg.content.search(/ apple/i)===-1)) {
+  if ((msg.content.search(/ple/i) < msg.content.search(/pineapple/i)) || msg.content.search(/eapple/i)===-1 && !(msg.content.search(/ple/i)===-1) || !(msg.content.search(/🍎/i)===-1) || !(msg.content.search(/pple/i)===-1)) {
     msg.react("🍎");
   } 
-  if (!(msg.content.search(/pinea/i)===-1) || !(msg.content.search(/🍍/i)===-1)) {
+  if (!(msg.content.search(/nea/i)===-1) || !(msg.content.search(/🍍/i)===-1)) {
     msg.react("🍍");
   } 
   if (!(msg.content.search(/ueb/i)===-1) || !(msg.content.search(/🫐/i)===-1)) {
@@ -73,7 +73,7 @@ client.on('messageCreate', async msg => {
   if (!(msg.content.search(/rap/i)===-1) || !(msg.content.search(/🍇/i)===-1)) {
     msg.react("🍇");
   } 
-  if (!(msg.content.search(/aterm/i)===-1) || !(msg.content.search(/🍉/i)===-1)){
+  if (!(msg.content.search(/term/i)===-1) || !(msg.content.search(/🍉/i)===-1)){
     msg.react("🍉");
   } 
   if (!(msg.content.search(/awb/i)===-1) || !(msg.content.search(/🍓/i)===-1)){
