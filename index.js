@@ -147,9 +147,13 @@ client.on('messageCreate', async msg => {
         db.get(args[0]).then(value => {msg.channel.send(args[0]+': '+value)});
       } else {
         db.list().then(keys => {
+        let allVotes = '';
         for (let i=0; i<keys.length; i++) {
           db.get(keys[i]).then(value => {
-          msg.channel.send(keys[i]+': '+value);
+          allVotes = allVotes+keys[i]+': '+value+'\n';
+          if(i===keys.length-1) {
+            msg.channel.send(allVotes);
+          }
           });
         }
         });
