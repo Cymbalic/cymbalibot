@@ -106,6 +106,7 @@ client.on('messageCreate', async msg => {
     if (msg.member.roles.cache.some(role => role.name === 'Alive') || checkForAdmin()) {
       if (args[0] === undefined) {
         db.get(msg.author.username).then(value => {msg.channel.send('Currently voting for '+value);});
+        return;
       }
       try {
         let vote = args.join(" ");
@@ -143,6 +144,7 @@ client.on('messageCreate', async msg => {
   // gets all votes/selected player's vote
   if (command === 'voting') {
     if (msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) || msg.channel.id == 694422951092813824) {
+      db.list().then(keys => {if (keys === []) return});
       if (args[0] != undefined) {
         db.get(args[0]).then(value => {msg.channel.send(args[0]+': '+value)});
       } else {
