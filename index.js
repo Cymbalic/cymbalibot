@@ -39,9 +39,11 @@ client.on('messageCreate', async msg => {
     }
     return true;
   }
+  
   // makes ! a prefix and doesn't look at messages without it
   const prefixes = ["!"];
   const prefix = prefixes.find(p => msg.content.startsWith(p));
+  
   // reacts to messages containing fruit with fruit
   if (!(msg.content.search(/pear/i)===-1) || !(msg.content.search(/🍐/i)===-1) || !(msg.content.search(/par/i)===-1)) {
     msg.react("🍐");
@@ -61,7 +63,7 @@ client.on('messageCreate', async msg => {
   if (!(msg.content.search(/herry/i)===-1) || !(msg.content.search(/erri/i)===-1) || !(msg.content.search(/🍒/i)===-1) || !(msg.content.search(/eri/i)===-1)) {
     msg.react("🍒");
   } 
-  if ((msg.content.search(/ple/i) < msg.content.search(/pineapple/i)) || msg.content.search(/eapple/i)===-1 && !(msg.content.search(/ple/i)===-1) || !(msg.content.search(/🍎/i)===-1) || !(msg.content.search(/pple/i)===-1)) {
+  if ((msg.content.search(/ple/i) < msg.content.search(/pineapple/i)) || msg.content.search(/eapple/i)===-1 && !(msg.content.search(/ple/i)===-1) || !(msg.content.search(/🍎/i)===-1) || !(msg.content.search(/ple/i)===-1)) {
     msg.react("🍎");
   } 
   if (!(msg.content.search(/nea/i)===-1) || !(msg.content.search(/🍍/i)===-1)) {
@@ -91,6 +93,8 @@ client.on('messageCreate', async msg => {
     // if !help alliance then alliance help
     if(args[0] === 'voting') {
       msg.channel.send("Use without arguments to show all votes. Use a username to show only that player's vote.");
+    } else if (args[0] === 'vote') {
+      msg.channel.send('Casts a vote for the person specified. Leave blank to see who you are currently voting for.');
     } else {
       msg.channel.send('!help\n!ping\n!spreadsheet\n!apply\n!say\n!ranked\n!vote\n!voting\n!dvote\ndvotes');
     }
