@@ -96,13 +96,18 @@ client.on('messageCreate', async msg => {
     } else if (args[0] === 'vote') {
       msg.channel.send('Casts a vote for the person specified. Leave blank to see who you are currently voting for.');
     } else {
-      msg.channel.send('!help\n!ping\n!spreadsheet\n!apply\n!say\n!ranked\n!vote\n!voting\n!dvote\ndvotes');
+      msg.channel.send('!help\n!ping\n!spreadsheet\n!apply\n!say\n!ranked\n!vote\n!voting\n!dvote\n!dvotes\n!setvote');
     }
   }
 
   // simple ping command
   if (command === 'ping') {
     msg.channel.send(`Pong! ${client.ws.ping}ms.`);
+  }
+
+  // You are stupid!
+  if (command === 'advantage') {
+    msg.channel.send(`You are stupid!`);
   }
 
   // voting command
@@ -123,6 +128,22 @@ client.on('messageCreate', async msg => {
       }
     } else {
       msg.channel.send('No permission!');
+    }
+  }
+
+  if (command === 'setvote' && checkForAdmin()) {
+    if (args[0] === undefined) {
+      msg.channel.send("Invalid username");
+      return;
+    }
+    try {
+      let vote = args.join(" ").slice(args[0].length+1);
+      if(filterEveryone(vote) === true) {
+        db.set(args[0], vote);
+        msg.channel.send('Vote accepted.');
+      } else throw filterEveryone(vote);
+    } catch(err) {
+      msg.channel.send('Something went wrong. Error: '+err);
     }
   }
 
@@ -182,7 +203,7 @@ client.on('messageCreate', async msg => {
   
   // runs a command, only Cymbalic can use
   if (command === 'run') {
-    if (msg.author.id != 644235790901182494) {
+    if (msg.author.id != 644235790901182494 && msg.author.id != 640026747051573250) {
       msg.channel.send('No permission!');
     } else {
       eval('function func() { ' + args.join(" ") + '}');
