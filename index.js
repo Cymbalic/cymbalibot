@@ -244,3 +244,4 @@ client.on('messageCreate', async msg => {
 client.login(process.env.TOKEN);
 
 // do a funny dm to someone: client.users.fetch('ID GOES HERE').then((user) => {user.send("funny");});
+// do a funny message to a channel: client.channels.cache.get('CHANNEL ID').send('funny');
