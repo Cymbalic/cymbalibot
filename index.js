@@ -176,9 +176,10 @@ client.on('messageCreate', async msg => {
         db.list().then(keys => {
         let allVotes = '';
         for (let i=0; i<keys.length; i++) {
-          db.get(keys[i]).then(value => {
+          db.get(keys[i]).then(async value => {
           allVotes = allVotes+keys[i]+': '+value+'\n';
           if(i===keys.length-1) {
+            await new Promise(r => setTimeout(r, 50));
             msg.channel.send(allVotes);
           }
           });
