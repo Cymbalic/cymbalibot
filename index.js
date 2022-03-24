@@ -114,13 +114,13 @@ client.on('messageCreate', async msg => {
   if (command === 'vote') {
     if (msg.member.roles.cache.some(role => role.name === 'Alive') || checkForAdmin()) {
       if (args[0] === undefined) {
-        db.get(msg.author.username).then(value => {msg.channel.send('Currently voting for '+value);});
+        db.get(msg.author.id).then(value => {msg.channel.send('Currently voting for: '+value);});
         return;
       }
       try {
         let vote = args.join(" ");
         if(filterEveryone(vote) === true) {
-          db.set(msg.author.username, vote);
+          db.set(msg.author.id, vote);
           msg.channel.send('Vote accepted.');
         } else throw filterEveryone(vote);
       } catch(err) {
@@ -171,13 +171,15 @@ client.on('messageCreate', async msg => {
     if (msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) || msg.channel.id == 694422951092813824) {
       db.list().then(keys => {if (keys === []) return});
       if (args[0] != undefined) {
-        db.get(args[0]).then(value => {msg.channel.send(args[0]+': '+value)});
+        let user = client.users.cache.find(user => user.username == args[0]);
+        db.get(user.id).then(value => {msg.channel.send(args[0]+': '+value)});
       } else {
         db.list().then(keys => {
         let allVotes = '';
         for (let i=0; i<keys.length; i++) {
-          db.get(keys[i]).then(async value => {
-          allVotes = allVotes+keys[i]+': '+value+'\n';
+          db.get(keys[i]).then(async value => {        
+          let user = client.users.cache.find(user => user.id === keys[i]);
+          allVotes = allVotes+user.username+': '+value+'\n';
           if(i===keys.length-1) {
             await new Promise(r => setTimeout(r, 50));
             msg.channel.send(allVotes);
