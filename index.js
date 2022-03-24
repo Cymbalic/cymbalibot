@@ -138,8 +138,9 @@ client.on('messageCreate', async msg => {
     }
     try {
       let vote = args.join(" ").slice(args[0].length+1);
+      let user = client.users.cache.find(user => user.username == args[0]);
       if(filterEveryone(vote) === true) {
-        db.set(args[0], vote);
+        db.set(user.id, vote);
         msg.channel.send('Vote accepted.');
       } else throw filterEveryone(vote);
     } catch(err) {
@@ -151,10 +152,10 @@ client.on('messageCreate', async msg => {
   if (command === 'dvote' && checkForAdmin()) {
     try {
       db.list().then(keys => {
-      let name = args.join(" ");
+      let user = client.users.cache.find(user => user.username == args.join(" "));
       for(let i=0;i<keys.length;i++) {
-        if(name == keys[i]) {
-          db.delete(name);
+        if(user.id == keys[i]) {
+          db.delete(user.id);
           msg.channel.send('Vote deleted.');
           return;
         } 
