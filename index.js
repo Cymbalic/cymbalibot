@@ -156,7 +156,6 @@ client.on('messageCreate', async msg => {
 
   // deletes all votes
   if (command === 'dvotes' && checkForAdmin()) {
-    checkForAdmin();
     db.list().then(keys => {
     for (let i=keys.length-1; i>-1; i--) {
       db.delete(keys[i]);
