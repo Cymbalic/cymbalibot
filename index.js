@@ -43,44 +43,7 @@ client.on('messageCreate', async msg => {
   // makes ! a prefix and doesn't look at messages without it
   const prefixes = ["!"];
   const prefix = prefixes.find(p => msg.content.startsWith(p));
-  
-  // reacts to messages containing fruit with fruit
-  if (!(msg.content.search(/pea/i)===-1) || !(msg.content.search(/🍐/i)===-1) || !(msg.content.search(/par/i)===-1)) {
-    msg.react("🍐");
-  } 
-  if (!(msg.content.search(/🍌/i)===-1) || !(msg.content.search(/bnn/i)===-1) || !(msg.content.search(/ana/i)===-1)) {
-    msg.react("🍌");
-  } 
-  if (!(msg.content.search(/ngo/i)===-1) || !(msg.content.search(/🥭/i)===-1) || !(msg.content.search(/man/i)===-1)) {
-    msg.react("🥭");
-  } 
-  if (!(msg.content.search(/ang/i)===-1) || !(msg.content.search(/🍊/i)===-1)) {
-    msg.react("🍊");
-  } 
-  if (!(msg.content.search(/oco/i)===-1) || !(msg.content.search(/🥥/i)===-1)) {
-    msg.react("🥥");
-  } 
-  if (!(msg.content.search(/herry/i)===-1) || !(msg.content.search(/erri/i)===-1) || !(msg.content.search(/🍒/i)===-1) || !(msg.content.search(/eri/i)===-1)) {
-    msg.react("🍒");
-  } 
-  if (!(msg.content.search(/ple/i)===-1) || !(msg.content.search(/🍎/i)===-1)) {
-    msg.react("🍎");
-  } 
-  if (!(msg.content.search(/nea/i)===-1) || !(msg.content.search(/🍍/i)===-1)) {
-    msg.react("🍍");
-  } 
-  if (!(msg.content.search(/ueb/i)===-1) || !(msg.content.search(/🫐/i)===-1)) {
-    msg.react("🫐");
-  } 
-  if (!(msg.content.search(/rap/i)===-1) || !(msg.content.search(/🍇/i)===-1)) {
-    msg.react("🍇");
-  } 
-  if (!(msg.content.search(/term/i)===-1) || !(msg.content.search(/🍉/i)===-1)){
-    msg.react("🍉");
-  } 
-  if (!(msg.content.search(/awb/i)===-1) || !(msg.content.search(/🍓/i)===-1)){
-    msg.react("🍓");
-  } 
+
   // don't reply to yourself silly
   if (msg.author.bot) return;
   if (!prefix) return;
@@ -108,6 +71,10 @@ client.on('messageCreate', async msg => {
   // You are stupid!
   if (command === 'advantage') {
     msg.channel.send(`You are stupid!`);
+  }
+
+  if (command === 'username') {
+    msg.channel.send(`Found Username!`);
   }
 
   // voting command
