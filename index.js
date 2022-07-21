@@ -132,7 +132,11 @@ client.on('messageCreate', async msg => {
   // gets all votes/selected player's vote
   if (command === 'voting') {
     if (msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) || msg.channel.id == 694422951092813824) {
-      db.list().then(keys => {if (keys === []) return});
+      db.list().then(keys => {
+        if (keys == '') {
+          msg.channel.send('No votes found.');
+          return;
+        }});
       if (args[0] != undefined) {
         db.get(args[0]).then(value => {msg.channel.send(args[0]+': '+value)});
       } else {
