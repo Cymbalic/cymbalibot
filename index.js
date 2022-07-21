@@ -73,10 +73,6 @@ client.on('messageCreate', async msg => {
     msg.channel.send(`You are stupid!`);
   }
 
-  if (command === 'username') {
-    msg.channel.send(`Found Username!`);
-  }
-
   // voting command
   if (command === 'vote') {
     if (msg.member.roles.cache.some(role => role.name === 'Alive') || checkForAdmin()) {
