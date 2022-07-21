@@ -183,11 +183,6 @@ client.on('messageCreate', async msg => {
   if (command === 'spreadsheet' || command === 'sheet') {
     msg.channel.send('https://docs.google.com/spreadsheets/d/1Ne3NzkaSV1boKZZHuzbeKdkBCzj9j6Sfy9x7f6sX0v8/edit?usp=sharing');
   } 
-
-  // sends a link to S9 applications by !apply or !application
-  if (command === 'apply' || command === 'application') {
-    msg.channel.send('Applications are not open!');
-  }
   
   // repeats whatever comes next, does not allow empty strings, @everyone, nor @here
   if (command === "say") {
