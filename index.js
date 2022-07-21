@@ -59,7 +59,7 @@ client.on('messageCreate', async msg => {
     } else if (args[0] === 'vote') {
       msg.channel.send('Casts a vote for the person specified. Leave blank to see who you are currently voting for.');
     } else {
-      msg.channel.send('!help\n!ping\n!spreadsheet\n!apply\n!say\n!ranked\n!vote\n!voting\n!dvote\n!dvotes\n!setvote');
+      msg.channel.send('!help\n!ping\n!spreadsheet\n!apply\n!say\n!vote\n!voting\n!dvote\n!dvotes\n!setvote');
     }
   }
 
@@ -187,11 +187,6 @@ client.on('messageCreate', async msg => {
   // sends a link to S9 applications by !apply or !application
   if (command === 'apply' || command === 'application') {
     msg.channel.send('Applications are not open!');
-  }
-
-  // sends a link to the ranked server
-  if (command === 'ranked') {
-    msg.channel.send('https://discord.gg/E9AKKRttwJ');
   }
   
   // repeats whatever comes next, does not allow empty strings, @everyone, nor @here
