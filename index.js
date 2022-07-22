@@ -39,7 +39,26 @@ client.on('messageCreate', async msg => {
     }
     return true;
   }
-  
+  // updates VC using message id from database
+  function updateVC() {
+    db.list().then(async keys => {
+      db.get('id').then(async valueID => {
+        if (valueID == null) return;
+        let msgRef = await msg.channel.messages.fetch(valueID);
+        db.get('maxVC').then(async valueVC => {
+          if (valueVC == null) return;
+          let temp = 0;
+          for (let i=keys.length-1; i>-1; i--) {
+            if (keys[i] == 'id' || keys[i] == 'maxVC') {
+              temp++;
+            }
+          }
+          await new Promise(r => setTimeout(r, 500));
+          msgRef.edit('**' + (keys.length-temp) + '/' + valueVC + '**');
+        });
+      });
+    });
+  }
   // makes ! a prefix and doesn't look at messages without it
   const prefixes = ["!"];
   const prefix = prefixes.find(p => msg.content.startsWith(p));
@@ -59,7 +78,7 @@ client.on('messageCreate', async msg => {
     } else if (args[0] === 'vote') {
       msg.channel.send('Casts a vote for the person specified. Leave blank to see who you are currently voting for.');
     } else {
-      msg.channel.send('!help\n!ping\n!spreadsheet\n!say\n!vote\n!voting\n!dvote\n!dvotes\n!setvote');
+      msg.channel.send('!help\n!ping\n!spreadsheet\n!say\n!vote\n!voting\n!dvote\n!dvotes\n!setvote\n!createvc\n!deletevc');
     }
   }
 
@@ -73,7 +92,7 @@ client.on('messageCreate', async msg => {
     msg.channel.send(`You are stupid!`);
   }
 
-  // voting command
+  // stores a vote in the database tied to username
   if (command === 'vote') {
     if (msg.member.roles.cache.some(role => role.name === 'Alive') || checkForAdmin()) {
       if (args[0] === undefined) {
@@ -85,6 +104,7 @@ client.on('messageCreate', async msg => {
         if(filterEveryone(vote) === true) {
           db.set(msg.author.username, vote);
           msg.channel.send('Vote accepted.');
+          updateVC();
         } else throw filterEveryone(vote);
       } catch(err) {
         msg.channel.send('Something went wrong. Error: '+err);
@@ -94,6 +114,7 @@ client.on('messageCreate', async msg => {
     }
   }
 
+  // same as !vote but used by admins to manually set votes for other players
   if (command === 'setvote' && checkForAdmin()) {
     if (args[0] === undefined) {
       msg.channel.send("Invalid username");
@@ -104,6 +125,7 @@ client.on('messageCreate', async msg => {
       if(filterEveryone(vote) === true) {
         db.set(args[0], vote);
         msg.channel.send('Vote accepted.');
+        updateVC();
       } else throw filterEveryone(vote);
     } catch(err) {
       msg.channel.send('Something went wrong. Error: '+err);
@@ -119,6 +141,7 @@ client.on('messageCreate', async msg => {
         if(name == keys[i]) {
           db.delete(name);
           msg.channel.send('Vote deleted.');
+          updateVC();
           return;
         } 
       }
@@ -144,9 +167,11 @@ client.on('messageCreate', async msg => {
         let allVotes = '';
         for (let i=0; i<keys.length; i++) {
           db.get(keys[i]).then(async value => {
-          allVotes = allVotes+keys[i]+': '+value+'\n';
+          if (keys[i] != 'id' && keys[i] != 'maxVC') {
+            allVotes = allVotes+keys[i]+': '+value+'\n';
+          }
           if(i===keys.length-1) {
-            await new Promise(r => setTimeout(r, 50));
+            await new Promise(r => setTimeout(r, 200));
             msg.channel.send(allVotes);
           }
           });
@@ -158,13 +183,24 @@ client.on('messageCreate', async msg => {
     }
   }
 
-  // deletes all votes
+  // deletes all votes and VC
   if (command === 'dvotes' && checkForAdmin()) {
     db.list().then(keys => {
     for (let i=keys.length-1; i>-1; i--) {
       db.delete(keys[i]);
     }
-    msg.channel.send('All votes deleted.');
+    msg.channel.send('All votes and VC deleted.');
+    });
+  }
+
+  if ((command === 'deletevc' || command === 'dvc') && checkForAdmin()) {
+    db.list().then(keys => {
+    for (let i=keys.length-1; i>-1; i--) {
+      if (keys[i] == 'id' || keys[i] == 'maxVC') {
+        db.delete(keys[i]);
+      }
+    }
+    msg.channel.send('VC deleted.');
     });
   }
   
@@ -194,6 +230,25 @@ client.on('messageCreate', async msg => {
     } catch(err) {
       msg.channel.send('Something went wrong. Error: '+err);
     }
+  }
+
+  // creates a vote count in specified channel out of specified amount using votes from database
+  if ((command === "createvc" || command === 'cvc') && checkForAdmin()) {
+    let chID = msg.guild.channels.cache.get(args[0].substring(2).substring(0,18));
+    db.list().then(keys => {
+      let temp = 0;
+      for (let i=keys.length-1; i>-1; i--) {
+        if (keys[i] == 'id' || keys[i] == 'maxVC') {
+          temp++;
+        }
+      }
+      let content = '**' + (keys.length-temp) + '/' + args[1] + '**';
+      chID.send(content).then(sent => {
+        let msgID = sent.id;
+        db.set('id', msgID);
+      });
+      db.set('maxVC', args[1]);
+    });
   }
 }
 );
