@@ -1,21 +1,18 @@
-// make a web server to keep the bot online
-const express = require('express');
-const app = express();
-const port = 3000;
-app.get('/', (req, res) => res.send('What are you looking for?'));
-app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));
-
-// replit database
-const Database = require("@replit/database");
-const db = new Database();
-
+const fs = require('fs');
 const { Permissions } = require('discord.js');
 const Discord = require('discord.js');
-const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES"] })
+const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES"]})
+const fileName = './votes.json';
+const votes = require(fileName);
+require('dotenv').config({path:"C:/Users/yoshi/Desktop/chadwick's junk/bot/auth.env"});
+console.log(require("dotenv").config());
+console.log(process.env.TOKEN+'test');
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
+
+client.on('debug', console.log);
 
 // actual bot code
 client.on('messageCreate', async msg => {
@@ -31,6 +28,7 @@ client.on('messageCreate', async msg => {
     }
     return true;
   }
+  
   function checkForAdmin() {
     // tests for permission to use command
     if (!(msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR))) {
@@ -39,26 +37,22 @@ client.on('messageCreate', async msg => {
     }
     return true;
   }
-  // updates VC using message id from database
-  function updateVC() {
-    db.list().then(async keys => {
-      db.get('id').then(async valueID => {
-        if (valueID == null) return;
-        let msgRef = await msg.channel.messages.fetch(valueID);
-        db.get('maxVC').then(async valueVC => {
-          if (valueVC == null) return;
-          let temp = 0;
-          for (let i=keys.length-1; i>-1; i--) {
-            if (keys[i] == 'id' || keys[i] == 'maxVC') {
-              temp++;
-            }
-          }
-          await new Promise(r => setTimeout(r, 500));
-          msgRef.edit('**' + (keys.length-temp) + '/' + valueVC + '**');
-        });
-      });
-    });
+  
+  function assign(obj, prop, value) {
+	if (typeof prop === "string")
+	  prop = prop.split(".");
+	if (prop.length > 1) {
+	  var e = prop.shift();
+	  assign(obj[e] =
+        Object.prototype.toString.call(obj[e]) === "[object Object]"
+        ? obj[e]
+        : {},
+        prop,
+        value);
+	} else
+	  obj[prop[0]] = value;
   }
+  
   // makes ! a prefix and doesn't look at messages without it
   const prefixes = ["!"];
   const prefix = prefixes.find(p => msg.content.startsWith(p));
@@ -72,13 +66,12 @@ client.on('messageCreate', async msg => {
 
   // sends a list of all commands
   if (command === 'help') {
-    // if !help alliance then alliance help
     if(args[0] === 'voting') {
       msg.channel.send("Use without arguments to show all votes. Use a username to show only that player's vote.");
     } else if (args[0] === 'vote') {
-      msg.channel.send('Casts a vote for the person specified. Leave blank to see who you are currently voting for.');
+      msg.channel.send('Casts a vote for the person specified. Leave blank to clear your vote.');
     } else {
-      msg.channel.send('!help\n!ping\n!spreadsheet\n!say\n!vote\n!voting\n!dvote\n!dvotes\n!setvote\n!createvc\n!deletevc');
+      msg.channel.send('!help\n!ping\n!spreadsheet\n!say\n!vote\n!voting\n!dvote\n!dvotes\n!setvote\n!createvc (deprecated)\n!deletevc (deprecated)');
     }
   }
 
@@ -91,93 +84,68 @@ client.on('messageCreate', async msg => {
   if (command === 'advantage') {
     msg.channel.send(`You are stupid!`);
   }
+  
+  if (command === 'stop') {
+	if (msg.author.id != 644235790901182494 && msg.author.id != 640026747051573250) {
+      msg.channel.send('No permission!');
+    } else {
+	  process.exit();
+	}
+  }
 
-  // stores a vote in the database tied to username
+  // stores a vote in votes.json tied to username
   if (command === 'vote') {
     if (msg.member.roles.cache.some(role => role.name === 'Alive') || checkForAdmin()) {
-      if (args[0] === undefined) {
-        db.get(msg.author.username).then(value => {msg.channel.send('Currently voting for '+value);});
-        return;
-      }
-      try {
-        let vote = args.join(" ");
-        if(filterEveryone(vote) === true) {
-          db.set(msg.author.username, vote);
-          msg.channel.send('Vote accepted.');
-          updateVC();
-        } else throw filterEveryone(vote);
-      } catch(err) {
-        msg.channel.send('Something went wrong. Error: '+err);
-      }
+      if (args[0] == undefined) {
+		assign(votes, msg.author.username, '');
+	    msg.channel.send('Vote deleted.');
+	  }
+	  assign(votes, msg.author.username, args[0]);
+	  fs.writeFile(fileName, JSON.stringify(votes), function writeJSON(err) {
+        if (err) return console.log(err);
+        msg.channel.send('Vote accepted.');
+        console.log('writing to ' + fileName);
+	  });
     } else {
       msg.channel.send('No permission!');
     }
   }
 
+
   // same as !vote but used by admins to manually set votes for other players
   if (command === 'setvote' && checkForAdmin()) {
     if (args[0] === undefined) {
-      msg.channel.send("Invalid username");
+      msg.channel.send("Invalid username.");
       return;
     }
-    try {
-      let vote = args.join(" ").slice(args[0].length+1);
-      if(filterEveryone(vote) === true) {
-        db.set(args[0], vote);
-        msg.channel.send('Vote accepted.');
-        updateVC();
-      } else throw filterEveryone(vote);
-    } catch(err) {
-      msg.channel.send('Something went wrong. Error: '+err);
-    }
+    assign(votes, args[0], args[1]);
+	fs.writeFile(fileName, JSON.stringify(votes), function writeJSON(err) {
+      if (err) return console.log(err);
+      msg.channel.send('Vote accepted.');
+      console.log('writing to ' + fileName);
+	});
   }
+
 
   // removes a vote from selected player
   if (command === 'dvote' && checkForAdmin()) {
-    try {
-      db.list().then(keys => {
-      let name = args.join(" ");
-      for(let i=0;i<keys.length;i++) {
-        if(name == keys[i]) {
-          db.delete(name);
-          msg.channel.send('Vote deleted.');
-          updateVC();
-          return;
-        } 
-      }
-      throw 'Invalid username';
-      });
-    } catch(err) {
-      msg.channel.send('Something went wrong. Error: '+err);
-    }
+    assign(votes, args[0], ' ');
+	fs.writeFile(fileName, JSON.stringify(votes), function writeJSON(err) {
+      if (err) return console.log(err);
+      msg.channel.send('Vote deleted.');
+      console.log('writing to ' + fileName);
+	});
   }
-  
+ 
   // gets all votes/selected player's vote
+
   if (command === 'voting') {
-    if (msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) || msg.channel.id == 694422951092813824) {
-      db.list().then(keys => {
-        if (keys == '') {
-          msg.channel.send('No votes found.');
-          return;
-        }});
-      if (args[0] != undefined) {
-        db.get(args[0]).then(value => {msg.channel.send(args[0]+': '+value)});
-      } else {
-        db.list().then(keys => {
-        let allVotes = '';
-        for (let i=0; i<keys.length; i++) {
-          db.get(keys[i]).then(async value => {
-          if (keys[i] != 'id' && keys[i] != 'maxVC') {
-            allVotes = allVotes+keys[i]+': '+value+'\n';
-          }
-          if(i===keys.length-1) {
-            await new Promise(r => setTimeout(r, 200));
-            msg.channel.send(allVotes);
-          }
-          });
-        }
-        });
-      }
+    if (checkForAdmin() || msg.channel.id == 694422951092813824) {
+	  let allVotes = '';
+      Object.entries(votes).forEach(([key, value]) =>
+	    allVotes += key+': '+value+'\n'
+	  );
+	  msg.channel.send(allVotes);
     } else {
       msg.channel.send('No permission!');
     }
@@ -185,14 +153,16 @@ client.on('messageCreate', async msg => {
 
   // deletes all votes and VC
   if (command === 'dvotes' && checkForAdmin()) {
-    db.list().then(keys => {
-    for (let i=keys.length-1; i>-1; i--) {
-      db.delete(keys[i]);
-    }
-    msg.channel.send('All votes and VC deleted.');
-    });
+    Object.entries(votes).forEach(([key, value]) =>
+	  assign(votes, key, ' ')
+	);
+	fs.writeFile(fileName, JSON.stringify(votes), function writeJSON(err) {
+      if (err) return console.log(err);
+      msg.channel.send('All votes and VC deleted.');
+      console.log('writing to ' + fileName);
+	});
   }
-
+/*
   if ((command === 'deletevc' || command === 'dvc') && checkForAdmin()) {
     db.list().then(keys => {
     for (let i=keys.length-1; i>-1; i--) {
@@ -203,7 +173,7 @@ client.on('messageCreate', async msg => {
     msg.channel.send('VC deleted.');
     });
   }
-  
+  */
   // runs a command, only Cymbalic can use
   if (command === 'run') {
     if (msg.author.id != 644235790901182494 && msg.author.id != 640026747051573250) {
@@ -231,7 +201,7 @@ client.on('messageCreate', async msg => {
       msg.channel.send('Something went wrong. Error: '+err);
     }
   }
-
+/*
   // creates a vote count in specified channel out of specified amount using votes from database
   if ((command === "createvc" || command === 'cvc') && checkForAdmin()) {
     let chID = msg.guild.channels.cache.get(args[0].substring(2).substring(0,18));
@@ -250,6 +220,7 @@ client.on('messageCreate', async msg => {
       db.set('maxVC', args[1]);
     });
   }
+*/
 }
 );
 
