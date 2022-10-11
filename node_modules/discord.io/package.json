@@ -1,0 +1,32 @@
+{
+  "name": "discord.io",
+  "version": "2.5.3",
+  "description": "JavaScript interface for Discord.",
+  "main": "./lib/index.js",
+  "typings": "./typings/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/izy521/discord.io.git"
+  },
+  "keywords": [
+    "Discord",
+    "Discordapp",
+    "Client",
+    "Bot",
+    "Library"
+  ],
+  "author": "izy521",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/izy521/discord.io/issues"
+  },
+  "homepage": "https://github.com/izy521/discord.io#readme",
+  "dependencies": {
+    "cjopus": "^0.0.4",
+    "tweetnacl": "^0.14.0",
+    "ws": "^1.1.0"
+  }
+}

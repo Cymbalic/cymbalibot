@@ -4,7 +4,7 @@ const Discord = require('discord.js');
 const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES"]})
 //const fileName = './filenamehere.json';
 //const json = require(fileName);
-require('dotenv').config({path:"C:/Users/yoshi/Desktop/chadwick's junk/bot/auth.env"});
+require('dotenv').config({path:"./auth.env"});
 
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
