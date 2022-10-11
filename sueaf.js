@@ -7,50 +7,50 @@ const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES"]})
 require('dotenv').config({path:"C:/Users/yoshi/Desktop/chadwick's junk/bot/auth.env"});
 
 client.on('ready', () => {
-  console.log(`Logged in as ${client.user.tag}!`);
+	console.log(`Logged in as ${client.user.tag}!`);
 });
 
 client.on('debug', console.log);
 
 // actual bot code
 client.on('messageCreate', async msg => {
-  // filters a message for an empty string, @everyone, and @here
-  // returns true when it's allowed, returns false when something is found
-  function filterEveryone(text) {
-    try {
-      if (text === '') throw 'Empty string';
-      if (!(text.search(/@everyone/)===-1)) throw 'Mentions everyone';
-      if (!(text.search(/@here/)===-1)) throw 'Mentions here';
-    } catch(err) {
-      return false;
-    }
-    return true;
-  }
-  
+	// filters a message for an empty string, @everyone, and @here
+	// returns true when it's allowed, returns false when something is found
+	function filterEveryone(text) {
+		try {
+			if (text === '') throw 'Empty string';
+			if (!(text.search(/@everyone/)===-1)) throw 'Mentions everyone';
+			if (!(text.search(/@here/)===-1)) throw 'Mentions here';
+		} catch(err) {
+			return false;
+		}
+		return true;
+	}
+
 	// checks if the message author has admin perms
-  function checkForAdmin() {
-    if (!(msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR))) {
-      msg.channel.send('No permission!');
-      return false;
-    }
-    return true;
-  }
-  
-  // creates or updates a value in an external json file
-  function assign(obj, prop, value) {
-	if (typeof prop === "string")
-	  prop = prop.split(".");
-	if (prop.length > 1) {
-	  var e = prop.shift();
-	  assign(obj[e] =
-        Object.prototype.toString.call(obj[e]) === "[object Object]"
-        ? obj[e]
-        : {},
-        prop,
-        value);
-	} else
-	  obj[prop[0]] = value;
-  }
+	function checkForAdmin() {
+		if (!(msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR))) {
+			msg.channel.send('No permission!');
+			return false;
+		}
+		return true;
+	}
+
+	// creates or updates a value in an external json file
+	function assign(obj, prop, value) {
+		if (typeof prop === "string")
+			prop = prop.split(".");
+		if (prop.length > 1) {
+			var e = prop.shift();
+			assign(obj[e] =
+		Object.prototype.toString.call(obj[e]) === "[object Object]"
+		? obj[e]
+		: {},
+		prop,
+		value);
+		} else
+			obj[prop[0]] = value;
+	}
 	
 	// adds role by mention or username to target
 	// r is a string for the role's name
@@ -92,7 +92,7 @@ client.on('messageCreate', async msg => {
 		}
 		if (message != undefined) msg.channel.send(message);
 	}
-  
+
 	// stock function from discord.js guide, thank you discord.js guide
 	function getUserFromMention(mention) {
 		if (!mention) return null;
@@ -107,78 +107,79 @@ client.on('messageCreate', async msg => {
 
 	
   // makes ! a prefix and doesn't look at messages without it unless specified
-  const prefixes = ['!'];
-  const prefix = prefixes.find(p => msg.content.startsWith(p));
-	if (!prefix) {
-		let x = msg.content.toLowerCase();
-		if (x == 'dur') msg.channel.send('is, when compared to former-President Ronald Reagan (1911-2004), quite a malicious figure. Even when compared to someone like Margaret Thatcher (1925-2013), it is clear that Dur is comparatively worse across the board, and some might even consider him to be a smelly poo poo. <:sansglasses:566015949338050614>.');
-		if (x == 'haha gay lol') msg.channel.send('haha gay lol');
-		if (x == 'vore') msg.channel.send('bawbbawbins john willard x potion master vore +18 (GONE WRONG!) free punjabi movie');
-		if (x == 'sans') msg.channel.send('is ness');
-		if (x == 'poop') msg.channel.send('seagull poop :sans:');
-		if (x == 'ToS announcer is gay') msg.channel.send('no u :troll:');
-		if (x == 'no u') msg.channel.send('No w');
-		if (x == 'u') msg.channel.send('doub le u');
-		if (x == 'shut up exe') msg.channel.send('and friends');
-		if (x == 'jester') msg.channel.send('<:clown:723860290739109890>');
-		if (x == 'snooze') msg.channel.send('u lose');
-		return;
-	} 
+	const prefixes = ['!'];
+	const prefix = prefixes.find(p => msg.content.startsWith(p));
+		if (!prefix) {
+			let x = msg.content.toLowerCase();
+			if (x == 'dur') msg.channel.send('is, when compared to former-President Ronald Reagan (1911-2004), quite a malicious figure. Even when compared to someone like Margaret Thatcher (1925-2013), it is clear that Dur is comparatively worse across the board, and some might even consider him to be a smelly poo poo. <:sansglasses:566015949338050614>.');
+			if (x == 'haha gay lol') msg.channel.send('haha gay lol');
+			if (x == 'vore') msg.channel.send('bawbbawbins john willard x potion master vore +18 (GONE WRONG!) free punjabi movie');
+			if (x == 'sans') msg.channel.send('is ness');
+			if (x == 'poop') msg.channel.send('seagull poop :sans:');
+			if (x == 'ToS announcer is gay') msg.channel.send('no u :troll:');
+			if (x == 'no u') msg.channel.send('No w');
+			if (x == 'u') msg.channel.send('doub le u');
+			if (x == 'shut up exe') msg.channel.send('and friends');
+			if (x == 'jester') msg.channel.send('<:clown:723860290739109890>');
+			if (x == 'snooze') msg.channel.send('u lose');
+			return;
+		} 
 
-  // don't reply to yourself silly
-  if (msg.author.bot) return;
-  
-  // splits apart arguments and command
-  const args = msg.content.slice(prefix.length).trim().split(/ +/g);
-  const command = args.shift().toLowerCase();
+	// don't reply to yourself silly
+	if (msg.author.bot)
+		return;
+
+	// splits apart arguments and command
+	const args = msg.content.slice(prefix.length).trim().split(/ +/g);
+	const command = args.shift().toLowerCase();
 
 	// Global Commands
 
-  // sends a list of all commands (DISABLED ON SUEAF)
-  if (command === 'help') {
-      // msg.channel.send('!help\n!ping\n!say');
-  }
+	// sends a list of all commands (DISABLED ON SUEAF)
+	if (command === 'help') {
+	// msg.channel.send('!help\n!ping\n!say');
+	}
 
-  // simple ping command
-  if (command === 'ping') {
-    msg.channel.send(`Pong! ${client.ws.ping}ms.`);
-  }
-  
-  // stops the bot for debugging, only Cymbalic can use
-  if (command === 'stop') {
-	if (msg.author.id != 644235790901182494 && msg.author.id != 640026747051573250) {
-      msg.channel.send('No permission!');
-    } else {
+	// simple ping command
+	if (command === 'ping') {
+	msg.channel.send(`Pong! ${client.ws.ping}ms.`);
+	}
+
+	// stops the bot for debugging, only Cymbalic can use
+	if (command === 'stop') {
+		if (msg.author.id != 644235790901182494 && msg.author.id != 640026747051573250) {
+			msg.channel.send('No permission!');
+		} else {
 			process.exit();
 		}
-  }
-
-  // runs a command, only Cymbalic can use
-  if (command === 'run') {
-    if (msg.author.id != 644235790901182494 && msg.author.id != 640026747051573250) {
-      msg.channel.send('No permission!');
-    } else {
-      eval('function func() { ' + args.join(" ") + '}');
-      func();
-      msg.channel.send('Command success!');
-    }
-  }
-  
-  // repeats whatever comes next
-  if (command === 'say') {
-    try {
-      let string = args.join(' ');
-      if(filterEveryone(string) === true) {
-        msg.channel.send(string);
-      } else throw filterEveryone(string);
-    } catch(err) {
-      msg.channel.send('Something went wrong. Error: '+err);
-    }
 	}
-  
+
+	// runs a command, only Cymbalic can use
+	if (command === 'run') {
+		if (msg.author.id != 644235790901182494 && msg.author.id != 640026747051573250) {
+			msg.channel.send('No permission!');
+		} else {
+			eval('function func() { ' + args.join(" ") + '}');
+			func();
+			msg.channel.send('Command success!');
+		}
+	}
+
+	// repeats whatever comes next
+	if (command === 'say') {
+		try {
+			let string = args.join(' ');
+			if(filterEveryone(string) === true) {
+				msg.channel.send(string);
+			} else throw filterEveryone(string);
+		} catch(err) {
+			msg.channel.send('Something went wrong. Error: '+err);
+		}
+	}
+
 	// SUEaF Exclusive Commands
 	
-  if (command === 'kill') {
+	if (command === 'kill') {
 		if (msg.member.roles.cache.find(role => role.name === 'Mafia' || role.name === 'Vigilante') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
 				if (!filterEveryone(args[0])) return;
