@@ -60,10 +60,14 @@ client.on('messageCreate', async msg => {
 		try {
 		var role = await msg.guild.roles.cache.find(role => role.name === r);
 		var user = getUserFromMention(target);
-		if (user === null) {
+		if (user !== null) {
 			var member = await msg.guild.members.fetch(user.id);
 		} else {
-			var member = msg.channel.guild.members.cache.find(member => member.user == user);
+			let x = await client.users.cache.find(user => user.username = target);
+			var member = msg.channel.guild.members.cache.find(member => member.user == x);
+		}
+		if (await target.id !== undefined) {
+			var member = msg.channel.guild.members.cache.find(member => member.user == target);
 		}
 		member.roles.add(role);
 		} catch(err) {
@@ -80,12 +84,15 @@ client.on('messageCreate', async msg => {
 		try {
 		var role = await msg.guild.roles.cache.find(role => role.name === r);
 		var user = getUserFromMention(target);
-		if (user === null) {
+		if (user !== null) {
 			var member = await msg.guild.members.fetch(user.id);
 		} else {
-			var member = msg.channel.guild.members.cache.find(member => member.user == user);
+			let x = await client.users.cache.find(user => user.username = target);
+			var member = msg.channel.guild.members.cache.find(member => member.user == x);
 		}
-		if (!member.roles.cache.has(role)) return;
+		if (await target.id !== undefined) {
+			var member = msg.channel.guild.members.cache.find(member => member.user == target);
+		}
 		member.roles.remove(role);
 		} catch(err) {
 			msg.channel.send('Could not find user '+target);
@@ -95,19 +102,28 @@ client.on('messageCreate', async msg => {
 
 	// stock function from discord.js guide, thank you discord.js guide
 	function getUserFromMention(mention) {
-		if (!mention) return null;
 		if (mention.startsWith('<@') && mention.endsWith('>')) {
 			mention = mention.slice(2, -1);
 			if (mention.startsWith('!')) {
 				mention = mention.slice(1);
 			}
-		return client.users.cache.get(mention);
+			return client.users.cache.get(mention);
+		} else {
+			let x = client.users.cache.get(mention);
+			if (x === undefined) {
+				return null;
+			} else {
+				return x;
+			}
 		}
 	}
 
+	// don't reply to yourself silly
+	if (msg.author.bot)
+		return;
 	
   // makes ! a prefix and doesn't look at messages without it unless specified
-	const prefixes = ['!'];
+	const prefixes = ['$'];
 	const prefix = prefixes.find(p => msg.content.startsWith(p));
 		if (!prefix) {
 			let x = msg.content.toLowerCase();
@@ -116,7 +132,6 @@ client.on('messageCreate', async msg => {
 			if (x == 'vore') msg.channel.send('bawbbawbins john willard x potion master vore +18 (GONE WRONG!) free punjabi movie');
 			if (x == 'sans') msg.channel.send('is ness');
 			if (x == 'poop') msg.channel.send('seagull poop :sans:');
-			if (x == 'ToS announcer is gay') msg.channel.send('no u :troll:');
 			if (x == 'no u') msg.channel.send('No w');
 			if (x == 'u') msg.channel.send('doub le u');
 			if (x == 'shut up exe') msg.channel.send('and friends');
@@ -124,10 +139,6 @@ client.on('messageCreate', async msg => {
 			if (x == 'snooze') msg.channel.send('u lose');
 			return;
 		} 
-
-	// don't reply to yourself silly
-	if (msg.author.bot)
-		return;
 
 	// splits apart arguments and command
 	const args = msg.content.slice(prefix.length).trim().split(/ +/g);
@@ -182,8 +193,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'kill') {
 		if (msg.member.roles.cache.find(role => role.name === 'Mafia' || role.name === 'Vigilante') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('dead', args[0], `For his neutral special, ${msg.author} wields a ***G U N***.`);
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('dead', args.join(' '), `For his neutral special, ${msg.author} wields a ***G U N***.`);
 			}
 		}
 	}
@@ -191,8 +202,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'jail') {
 		if (msg.member.roles.cache.find(role => role.name === 'Jailor') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('jailed', args[0], 'You successfully jailed '+args[0]+' for tax evasion <:sansglasses:566015949338050614>');
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('jailed', args.join(' '), 'You successfully jailed '+args.join(' ')+' for tax evasion <:sansglasses:566015949338050614>');
 			}
 		}
 	}
@@ -200,8 +211,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'hex') {
 		if (msg.member.roles.cache.find(role => role.name === 'Hex master') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('dead', args[0], 'You grab the necronomicon and start absorbing power from your 187 seagulls and cast a spell successfully hexing '+args[0]);
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('dead', args.join(' '), 'You grab the necronomicon and start absorbing power from your 187 seagulls and cast a spell successfully hexing '+args.join(' '));
 			}
 		}		
 	}
@@ -209,8 +220,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'douse') {
 		if (msg.member.roles.cache.find(role => role.name === 'Arsonist') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('doused', args[0], 'You convince '+args[0]+" to take a bottle of a washing detergent of your own making, too bad it's actually gasoline");
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('doused', args.join(' '), 'You convince '+args.join(' ')+" to take a bottle of a washing detergent of your own making, too bad it's actually gasoline");
 			}
 		}
 	}
@@ -218,8 +229,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'haunt') {
 		if (msg.member.roles.cache.find(role => role.name === 'Jester') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('dead', args[0], 'You have come to haunt '+args[0]+' death by showing you the cutout of Justin Bieber (you genuinely flummery your soul out)');
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('dead', args.join(' '), 'You have come to haunt '+args.join(' ')+' death by showing you the cutout of Justin Bieber (you genuinely flummery your soul out)');
 				addRole('dead', msg.author);
 			}
 		}
@@ -228,8 +239,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'blackmail') {
 		if (msg.member.roles.cache.find(role => role.name === 'Blackmailer') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('blackmailed', args[0], 'You condemn '+args[0]+' to the horrors of the Twitter trending tab. They are so petrified they cease all higher brain functions and therefore cannot speak.');
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('blackmailed', args.join(' '), 'You condemn '+args.join(' ')+' to the horrors of the Twitter trending tab. They are so petrified they cease all higher brain functions and therefore cannot speak.');
 			}
 		}
 	}
@@ -237,8 +248,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'protect') {
 		if (msg.member.roles.cache.find(role => role.name === 'Bodyguard') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('protected', args[0], args[0]+' payed you to protect them. You gladly accept and so you proceed to have passionate gay sex all night for the rest of the week until your testicles eventually deflate.');
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('protected', args.join(' '), args.join(' ')+' payed you to protect them. You gladly accept and so you proceed to have passionate gay sex all night for the rest of the week until your testicles eventually deflate.');
 			}
 		}
 	}
@@ -246,24 +257,24 @@ client.on('messageCreate', async msg => {
 	if (command === 'maul') {
 		if (msg.member.roles.cache.find(role => role.name === 'Werewolf') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('dead', args[0], 'You try to have an OwO moment with '+args[0]+", but they say they aren't into furries so you uwu maul them instead.");
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('dead', args.join(' '), 'You try to have an OwO moment with '+args.join(' ')+", but they say they aren't into furries so you uwu maul them instead.");
 			}
 		}
 	}
 	
 	if (command === 'kill5') {
 		if (msg.member.roles.cache.find(role => role.name === 'kill4') || checkForAdmin()) {
-			if (!filterEveryone(args[0])) return;
-			addRole('dead', args[0], "Honestly there's nothing left to do now, you are so powerful you turn people into a tomato sauce, so you just flex on "+args[0]+", and they die from witnessing so much D R I P.");
+			if (!filterEveryone(args.join(' '))) return;
+			addRole('dead', args.join(' '), "Honestly there's nothing left to do now, you are so powerful you turn people into a tomato sauce, so you just flex on "+args.join(' ')+", and they die from witnessing so much D R I P.");
 		}
 	}
 	
 	if (command === 'bite') {
 		if (msg.member.roles.cache.find(role => role.name === 'Vampire') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('bitten', args[0], 'You bite '+args[0]+' for that sweet sweet blood, but also 13% of income and additional annoyance to jesture guy dude, because he needs to count all that.');
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('bitten', args.join(' '), 'You bite '+args.join(' ')+' for that sweet sweet blood, but also 13% of income and additional annoyance to jesture guy dude, because he needs to count all that.');
 			}
 		}
 	}
@@ -271,8 +282,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'stone') {
 		if (msg.member.roles.cache.find(role => role.name === 'Medusa') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('dead', args[0], 'Never buy no weed from the mythological creatures..');
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('dead', args.join(' '), 'Never buy no weed from the mythological creatures..');
 			}
 		}
 	}
@@ -280,17 +291,17 @@ client.on('messageCreate', async msg => {
 	if (command === 'poison') {
 		if (msg.member.roles.cache.find(role => role.name === 'Poisoner') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('dead', args[0], 'You decided to poison '+args[0]+'. The next day it turns out they died due to peanut allergy. You sick monster...');
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('dead', args.join(' '), 'You decided to poison '+args.join(' ')+'. The next day it turns out they died due to peanut allergy. You sick monster...');
 			}
 		}
 	}
 	
 	if (command === 'pest') {
-		if (msg.member.roles.cache.find(role => role.name === 'Medusa') || checkForAdmin()) {
+		if (msg.member.roles.cache.find(role => role.name === 'Pestilence') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('dead', args[0], "You cough on "+args[0]+" instantly killing him. Should've worn a mask.");
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('dead', args.join(' '), "You cough on "+args.join(' ')+" instantly killing him. Should've worn a mask.");
 			}
 		}
 	}
@@ -298,7 +309,7 @@ client.on('messageCreate', async msg => {
 	if (command === 'lynch') {
 		if (msg.member.roles.cache.find(role => role.name === 'Executioner') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				addRole('on trial', args[0], 'You successfully lynched '+args[0]+'. @everyone The trial shall begin in a moment.');
+				addRole('on trial', args.join(' '), 'You successfully lynched '+args.join(' ')+'. @everyone The trial shall begin in a moment.');
 			}
 		}
 	}
@@ -306,8 +317,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'heal') {
 		if (msg.member.roles.cache.find(role => role.name === 'Potion master' || role.name === 'Doctor') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('healed', args[0], 'You healed '+args[0]+', but also sold their liver, their right kidney, and their right lung.');
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('healed', args.join(' '), 'You healed '+args.join(' ')+', but also sold their liver, their right kidney, and their right lung.');
 			}
 		}
 	}
@@ -315,8 +326,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'crusade') {
 		if (msg.member.roles.cache.find(role => role.name === 'Crusader') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('dead', args[0], 'You killed '+args[0]+' with your holy blade for being degenerate. Your next stop is Rule 34');
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('dead', args.join(' '), 'You killed '+args.join(' ')+' with your holy blade for being degenerate. Your next stop is Rule 34');
 			}
 		}
 	}
@@ -324,24 +335,24 @@ client.on('messageCreate', async msg => {
 	if (command === 'trap') {
 		if (msg.member.roles.cache.find(role => role.name === 'Trapper') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('protected', args[0], 'You set up a trap at '+arg[0]+"'s house. The trap is in actuality a bee with massive nuts. Bees nuts! [There used to be a trap joke, but i deemed it unfunny so I'm gonna replace it with something funnier]");
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('protected', args.join(' '), 'You set up a trap at '+arg[0]+"'s house. The trap is in actuality a bee with massive nuts. Bees nuts! [There used to be a trap joke, but i deemed it unfunny so I'm gonna replace it with something funnier]");
 			}
 		}
 	}
 	
 	if (command === 'roleblock' || command === 'rb') {
 		if (msg.member.roles.cache.find(role => role.name === 'Escort' || role.name === 'Consort') || checkForAdmin()) {
-			if (!filterEveryone(args[0])) return;
-			addRole('roleblocked', args[0], 'You distracted '+args[0]+' with your distraction dance, after being charged with sexual allegations against minors.');
+			if (!filterEveryone(args.join(' '))) return;
+			addRole('roleblocked', args.join(' '), 'You distracted '+args.join(' ')+' with your distraction dance, after being charged with sexual allegations against minors.');
 		}
 	}
 	
 	if (command === 'ambush') {
 		if (msg.member.roles.cache.find(role => role.name === 'Ambusher') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('dead', args[0], '*Ambushed by foul invention!*');
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('dead', args.join(' '), '*Ambushed by foul invention!*');
 			}
 		}
 	}
@@ -349,65 +360,65 @@ client.on('messageCreate', async msg => {
 	if (command === 'sanitize' || command === 'clean') {
 		if (msg.member.roles.cache.find(role => role.name === 'Janitor') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('dead', args[0], 'You clean '+args[0]+', so you just put them in a bag and steal all their stuff, this includes valuables, personal stuff and info, and also their undies.');
-				addRole('cleaned', args[0]);
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('dead', args.join(' '), 'You clean '+args.join(' ')+', so you just put them in a bag and steal all their stuff, this includes valuables, personal stuff and info, and also their undies.');
+				addRole('cleaned', args.join(' '));
 			}
 		}
 	}
 	
 	if (command === 'skill') {
 		if (msg.member.roles.cache.find(role => role.name === 'Serial Killer') || checkForAdmin()) {
-			if (!filterEveryone(args[0])) return;
-			addRole('dead', args[0], 'You stabbed '+args[0]+' so hard they become swiss cheese. You gouda be kidding me!');
+			if (!filterEveryone(args.join(' '))) return;
+			addRole('dead', args.join(' '), 'You stabbed '+args.join(' ')+' so hard they become swiss cheese. You gouda be kidding me!');
 		}
 	}
 	
 	if (command === 'pmkill') {
 		if (msg.member.roles.cache.find(role => role.name === 'Potion master') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('dead', args[0], 'You threw a Splash Potion of Harming X at '+args[0]+'. They die immidatelly by contracting hepatitus V');
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('dead', args.join(' '), 'You threw a Splash Potion of Harming X at '+args.join(' ')+'. They die immidatelly by contracting hepatitus V');
 			}
 		}
 	}
 	
 	if (command === 'clkill') {
 		if (msg.member.roles.cache.find(role => role.name === 'Coven Leader') || checkForAdmin()) {
-			if (!filterEveryone(args[0])) return;
-			addRole('dead', args[0], 'Coven Leader is draining all the cum from '+args[0]+'. His nuts now look like pair of raisins. '+args[0]+' later dies of cum deficiency.');
+			if (!filterEveryone(args.join(' '))) return;
+			addRole('dead', args.join(' '), 'Coven Leader is draining all the cum from '+args.join(' ')+'. His nuts now look like pair of raisins. '+args.join(' ')+' later dies of cum deficiency.');
 		}
 	}
 	
 	if (command === 'witchkill') {
 		if (msg.member.roles.cache.find(role => role.name === 'Witch') || checkForAdmin()) {
-			if (!filterEveryone(args[0])) return;
-			addRole('dead', args[0], 'You controlled random townie into killing themselves. This way le cops will never find you. Epic troll <:trollface:720749492751695875>');
+			if (!filterEveryone(args.join(' '))) return;
+			addRole('dead', args.join(' '), 'You controlled random townie into killing themselves. This way le cops will never find you. Epic troll <:trollface:720749492751695875>');
 		}
 	}
 	
 	if (command === 'banish') {
 		if (msg.member.roles.cache.find(role => role.name === 'Geraldo') || checkForAdmin()) {
-			if (!filterEveryone(args[0])) return;
-			addRole('dead', args[0], 'You have been banished to the depths of the official SUEAF discord server, where pain and suffering remain');
+			if (!filterEveryone(args.join(' '))) return;
+			addRole('dead', args.join(' '), 'You have been banished to the depths of the official SUEAF discord server, where pain and suffering remain');
 		}
 	}
 	
 	if (command === 'horny' && checkForAdmin()) {
-		addRole('jailed', args[0], 'https://cdn.discordapp.com/attachments/762925142170009650/956969111710220288/1648229608092.jpg');
+		addRole('jailed', args.join(' '), 'https://cdn.discordapp.com/attachments/762925142170009650/956969111710220288/1648229608092.jpg');
 	}
 	
 	if (command === 'revive') {
 		if (msg.member.roles.cache.find(role => role.name === 'Necromancer') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				removeRole('dead', args[0]);
-				removeRole('doused', args[0]);
-				removeRole('bitten', args[0]);
-				removeRole('kill1', args[0]);
-				removeRole('kill2', args[0]);
-				removeRole('kill3', args[0]);
-				removeRole('kill4', args[0], 'You successfully revived '+args[0]+'. You take your handy dandy necronomicon and proceed to slap the shit out of the dead body until it is alive again.');
+				if (!filterEveryone(args.join(' '))) return;
+				removeRole('dead', args.join(' '), 'You successfully revived '+args.join(' ')+'. You take your handy dandy necronomicon and proceed to slap the shit out of the dead body until it is alive again.');
+				removeRole('doused', args.join(' '));
+				removeRole('bitten', args.join(' '));
+				removeRole('kill1', args.join(' '));
+				removeRole('kill2', args.join(' '));
+				removeRole('kill3', args.join(' '));
+				removeRole('kill4', args.join(' '));
 			}
 		}
 	}
@@ -415,9 +426,9 @@ client.on('messageCreate', async msg => {
 	if (command === 'ignite') {
 		if (msg.member.roles.cache.find(role => role.name === 'Arsonist') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				removeRole('doused', args[0]);
-				addRole('dead', args[0], 'You ignited '+args[0]+"'s house with them inside. Industrial revolution and it's consequences...");
+				if (!filterEveryone(args.join(' '))) return;
+				removeRole('doused', args.join(' '));
+				addRole('dead', args.join(' '), 'You ignited '+args.join(' ')+"'s house with them inside. Industrial revolution and it's consequences...");
 			}
 		}
 	}
@@ -425,9 +436,9 @@ client.on('messageCreate', async msg => {
 	if (command === 'kill1') {
 		if (msg.member.roles.cache.find(role => role.name === 'Juggernaut') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
+				if (!filterEveryone(args.join(' '))) return;
 				addRole('kill1', msg.author);
-				addRole('dead', args[0], 'You punched '+args[0]+' so hard they die of death, you feel great! You received a new power up!');
+				addRole('dead', args.join(' '), 'You punched '+args.join(' ')+' so hard they die of death, you feel great! You received a new power up!');
 			}
 		}
 	}
@@ -435,9 +446,9 @@ client.on('messageCreate', async msg => {
 	if (command === 'kill2') {
 		if (msg.member.roles.cache.find(role => role.name === 'kill1') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
+				if (!filterEveryone(args.join(' '))) return;
 				addRole('kill2', msg.author);
-				addRole('dead', args[0], 'You punch '+args[0]+' so hard they flied over half the Cairo. Now [the World] shall be yours. Good job!');
+				addRole('dead', args.join(' '), 'You punch '+args.join(' ')+' so hard they flied over half the Cairo. Now [the World] shall be yours. Good job!');
 			}
 		}
 	}
@@ -445,26 +456,26 @@ client.on('messageCreate', async msg => {
 	if (command === 'kill3') {
 		if (msg.member.roles.cache.find(role => role.name === 'kill2') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
+				if (!filterEveryone(args.join(' '))) return;
 				addRole('kill3', msg.author);
-				addRole('dead', args[0], 'You punch '+args[0]+' so hard the skeleton comes out of them and they become sands undertlae! <:sansglasses:566015949338050614>');
+				addRole('dead', args.join(' '), 'You punch '+args.join(' ')+' so hard the skeleton comes out of them and they become sands undertlae! <:sansglasses:566015949338050614>');
 			}
 		}
 	}
 	
 	if (command === 'kill4') {
 		if (msg.member.roles.cache.find(role => role.name === 'kill3') || checkForAdmin()) {
-			if (!filterEveryone(args[0])) return;
+			if (!filterEveryone(args.join(' '))) return;
 			addRole('kill4', msg.author);
-			addRole('dead', args[0], 'You punched '+args[0]+' so hard that they become spaghetti');
+			addRole('dead', args.join(' '), 'You punched '+args.join(' ')+' so hard that they become spaghetti');
 		}
 	}
 	
 	if (command === 'unjail') {
 		if (msg.member.roles.cache.find(role => role.name === 'Jailor') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				removeRole('jailed', args[0], 'You released '+args[0]+' free.');
+				if (!filterEveryone(args.join(' '))) return;
+				removeRole('jailed', args.join(' '), 'You released '+args.join(' ')+' free.');
 			}
 		}
 	}
@@ -472,9 +483,9 @@ client.on('messageCreate', async msg => {
 	if (command === 'execute') {
 		if (msg.member.roles.cache.find(role => role.name === 'Jailor') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('dead', args[0]);
-				removeRole('jailed', args[0], 'You executed '+args[0]+'. Though someone needs to clean up this mess you made');
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('dead', args.join(' '));
+				removeRole('jailed', args.join(' '), 'You executed '+args.join(' ')+'. Though someone needs to clean up this mess you made');
 			}
 		}
 	}
@@ -482,9 +493,9 @@ client.on('messageCreate', async msg => {
 	if (command === 'guilty') {
 		if (msg.member.roles.cache.find(role => role.name === 'Executioner') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				addRole('dead', args[0]);
-				removeRole('on trial', args[0], 'May God have mercy on your soul.');
+				if (!filterEveryone(args.join(' '))) return;
+				addRole('dead', args.join(' '));
+				removeRole('on trial', args.join(' '), 'May God have mercy on your soul.');
 			}
 		}
 	}
@@ -492,26 +503,26 @@ client.on('messageCreate', async msg => {
 	if (command === 'innocent') {
 		if (msg.member.roles.cache.find(role => role.name === 'Executioner') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				removeRole('on trial', args[0], 'You deemed '+args[0]+' as not guilty. You shall walk freely for now');
+				if (!filterEveryone(args.join(' '))) return;
+				removeRole('on trial', args.join(' '), 'You deemed '+args.join(' ')+' as not guilty. You shall walk freely for now');
 			}
 		}
 	}
 	
 	if (command === 'arolerole' && checkForAdmin()) {
-		addRole(args[1], args[0]);
-		removeRole(args[2], args[0], args[0]+' now has '+args[1]+' instead of '+args[2]);
+		addRole(args[1], args.join(' '));
+		removeRole(args[2], args.join(' '), args.join(' ')+' now has '+args[1]+' instead of '+args[2]);
 	}
 	
 	if (command === 'gapurge') {
 		if (msg.member.roles.cache.find(role => role.name === 'Guardian Angel') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				removeRole('dead', args[0]);
-				removeRole('doused', args[0]);
-				removeRole('bitten', args[0]);
-				removeRole('cleaned', args[0]);
-				removeRole('blackmailed', args[0], 'The person you are protecting has been purged with holy power of your holiness. Holy! Now hand over your money.');
+				if (!filterEveryone(args.join(' '))) return;
+				removeRole('dead', args.join(' '));
+				removeRole('doused', args.join(' '));
+				removeRole('bitten', args.join(' '));
+				removeRole('cleaned', args.join(' '));
+				removeRole('blackmailed', args.join(' '), 'The person you are protecting has been purged with holy power of your holiness. Holy! Now hand over your money.');
 			}
 		}
 	}
@@ -519,14 +530,14 @@ client.on('messageCreate', async msg => {
 	if (command === 'retrev') {
 		if (msg.member.roles.cache.find(role => role.name === 'Retributionist') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				removeRole('dead', args[0]);
-				removeRole('doused', args[0]);
-				removeRole('bitten', args[0]);
-				removeRole('kill1', args[0]);
-				removeRole('kill2', args[0]);
-				removeRole('kill3', args[0]);
-				removeRole('kill4', args[0], 'You neatly revive '+args[0]+" with the power slam jam, and fine them 250<:execent:526405001862578186> for taking your time, while you should've been on the discotheque 5 minutes ago.");
+				if (!filterEveryone(args.join(' '))) return;
+				removeRole('dead', args.join(' '));
+				removeRole('doused', args.join(' '));
+				removeRole('bitten', args.join(' '));
+				removeRole('kill1', args.join(' '));
+				removeRole('kill2', args.join(' '));
+				removeRole('kill3', args.join(' '));
+				removeRole('kill4', args.join(' '), 'You neatly revive '+args.join(' ')+" with the power slam jam, and fine them 250<:execent:526405001862578186> for taking your time, while you should've been on the discotheque 5 minutes ago.");
 			}
 		}
 	}
@@ -538,24 +549,24 @@ client.on('messageCreate', async msg => {
 	if (command === 'frame') {
 		if (msg.member.roles.cache.find(role => role.name === 'Framer') || checkForAdmin()) { 
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				msg.channel.send('Your framed '+args[0]+' but it seems that it did nothing, since there is no TI, haha gay lol');
+				if (!filterEveryone(args.join(' '))) return;
+				msg.channel.send('Your framed '+args.join(' ')+' but it seems that it did nothing, since there is no TI, haha gay lol');
 			}
 		}
 	}
 	
 	if (command === 'controll') {
 		if (msg.member.roles.cache.find(role => role.name === 'Coven Leader' || role.name === 'Witch') || checkForAdmin()) { 
-			if (!filterEveryone(args[0])) return;
-			msg.channel.send('You controlled '+args[0]+'. You made them do your dishes, laundry and eating your ass. Money well spent.');
+			if (!filterEveryone(args.join(' '))) return;
+			msg.channel.send('You controlled '+args.join(' ')+'. You made them do your dishes, laundry and eating your ass. Money well spent.');
 		}
 	}
 	
 	if (command === 'magic') {
 		if (msg.member.roles.cache.find(role => role.name === 'Coven') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				msg.channel.send('You used some magic on '+args[0]+'. They claim to feel quite funny, while you go on to sell their liver on a black market to waste your money on TF2 crates.');
+				if (!filterEveryone(args.join(' '))) return;
+				msg.channel.send('You used some magic on '+args.join(' ')+'. They claim to feel quite funny, while you go on to sell their liver on a black market to waste your money on TF2 crates.');
 			}
 		}
 	}
@@ -563,8 +574,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'reveal') {
 		if (msg.member.roles.cache.find(role => role.name === 'Potion master') || checkForAdmin()) { 
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				msg.channel.send('You reveal '+args[0]+' that everyone wrong and you are right, and if someone disagrees with you, they are an idiot! Nobody liked it so everyone is going to now throw tomatoes at you and make fun of you, while you "rightfully" defend your baseless opinion.');
+				if (!filterEveryone(args.join(' '))) return;
+				msg.channel.send('You reveal '+args.join(' ')+' that everyone wrong and you are right, and if someone disagrees with you, they are an idiot! Nobody liked it so everyone is going to now throw tomatoes at you and make fun of you, while you "rightfully" defend your baseless opinion.');
 			}
 		}
 	}
@@ -588,8 +599,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'hypnotise') {
 		if (msg.member.roles.cache.find(role => role.name === 'Hypnotist') || checkForAdmin()) { 
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				msg.channel.send('You hypnotise '+args[0]+' into thinking they are gay and the first thing they do is to watch JoJo part 5. Good job!');
+				if (!filterEveryone(args.join(' '))) return;
+				msg.channel.send('You hypnotise '+args.join(' ')+' into thinking they are gay and the first thing they do is to watch JoJo part 5. Good job!');
 			}
 		}
 	}
@@ -597,8 +608,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'investigate') {
 		if (msg.member.roles.cache.find(role => role.name === 'Consigliere' || role.name === 'Investigator') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				msg.channel.send('You investigate '+args[0]+", or should i say you investiGAY them! (yes i know it's an awful joke)");
+				if (!filterEveryone(args.join(' '))) return;
+				msg.channel.send('You investigate '+args.join(' ')+", or should i say you investiGAY them! (yes i know it's an awful joke)");
 			}
 		}
 	}
@@ -606,8 +617,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'bug') {
 		if (msg.member.roles.cache.find(role => role.name === 'Spy') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {			
-				if (!filterEveryone(args[0])) return;
-				msg.channel.send('You keep bugging '+args[0]+", because of the stole pokemon cards they took from you in primary school. Too bad your spying techniques won't help you because they're about to kick your ass");
+				if (!filterEveryone(args.join(' '))) return;
+				msg.channel.send('You keep bugging '+args.join(' ')+", because of the stole pokemon cards they took from you in primary school. Too bad your spying techniques won't help you because they're about to kick your ass");
 			}
 		}
 	}
@@ -627,8 +638,8 @@ client.on('messageCreate', async msg => {
 	if (command === 'interrogate') {
 		if (msg.member.roles.cache.find(role => role.name === 'Sheriff') || checkForAdmin()) { 
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(args[0])) return;
-				msg.channel.send('You interrogate '+args[0]+", and that mother darn tarnation keeps fucking your dang cows and shit. Unfortunatelly yer a dumb son of a gun and can do non' aboutit.");
+				if (!filterEveryone(args.join(' '))) return;
+				msg.channel.send('You interrogate '+args.join(' ')+", and that mother darn tarnation keeps fucking your dang cows and shit. Unfortunatelly yer a dumb son of a gun and can do non' aboutit.");
 			}
 		}
 	}
