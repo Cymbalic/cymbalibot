@@ -143,7 +143,10 @@ client.on('messageCreate', async msg => {
 	// splits apart arguments and command
 	const args = msg.content.slice(prefix.length).trim().split(/ +/g);
 	const command = args.shift().toLowerCase();
+	
+	// extra variables to consolidate
 	const argsJoin = args.join(' ');
+	const msgAuthor = msg.author.id;
 
 	// Global Commands
 
@@ -159,7 +162,7 @@ client.on('messageCreate', async msg => {
 
 	// stops the bot for debugging, only Cymbalic can use
 	if (command === 'stop') {
-		if (msg.author.id != 644235790901182494 && msg.author.id != 640026747051573250) {
+		if (msgAuthor != 644235790901182494 && msgAuthor != 640026747051573250) {
 			msg.channel.send('No permission!');
 		} else {
 			process.exit();
@@ -168,7 +171,7 @@ client.on('messageCreate', async msg => {
 
 	// runs a command, only Cymbalic can use
 	if (command === 'run') {
-		if (msg.author.id != 644235790901182494 && msg.author.id != 640026747051573250) {
+		if (msgAuthor != 644235790901182494 && msgAuthor != 640026747051573250) {
 			msg.channel.send('No permission!');
 		} else {
 			eval('function func() { ' + args.join(" ") + '}');
@@ -232,7 +235,7 @@ client.on('messageCreate', async msg => {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
 				if (!filterEveryone(argsJoin)) return;
 				addRole('dead', argsJoin, 'You have come to haunt '+argsJoin+' death by showing you the cutout of Justin Bieber (you genuinely flummery your soul out)');
-				addRole('dead', msg.author.id);
+				addRole('dead', msgAuthor);
 			}
 		}
 	}
@@ -438,7 +441,7 @@ client.on('messageCreate', async msg => {
 		if (msg.member.roles.cache.find(role => role.name === 'Juggernaut') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
 				if (!filterEveryone(argsJoin)) return;
-				addRole('kill1', msg.author.id);
+				addRole('kill1', msgAuthor);
 				addRole('dead', argsJoin, 'You punched '+argsJoin+' so hard they die of death, you feel great! You received a new power up!');
 			}
 		}
@@ -448,7 +451,7 @@ client.on('messageCreate', async msg => {
 		if (msg.member.roles.cache.find(role => role.name === 'kill1') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
 				if (!filterEveryone(argsJoin)) return;
-				addRole('kill2', msg.author.id);
+				addRole('kill2', msgAuthor);
 				addRole('dead', argsJoin, 'You punch '+argsJoin+' so hard they flied over half the Cairo. Now [the World] shall be yours. Good job!');
 			}
 		}
@@ -458,7 +461,7 @@ client.on('messageCreate', async msg => {
 		if (msg.member.roles.cache.find(role => role.name === 'kill2') || checkForAdmin()) {
 			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
 				if (!filterEveryone(argsJoin)) return;
-				addRole('kill3', msg.author.id);
+				addRole('kill3', msgAuthor);
 				addRole('dead', argsJoin, 'You punch '+argsJoin+' so hard the skeleton comes out of them and they become sands undertlae! <:sansglasses:566015949338050614>');
 			}
 		}
@@ -467,7 +470,7 @@ client.on('messageCreate', async msg => {
 	if (command === 'kill4') {
 		if (msg.member.roles.cache.find(role => role.name === 'kill3') || checkForAdmin()) {
 			if (!filterEveryone(argsJoin)) return;
-			addRole('kill4', msg.author.id);
+			addRole('kill4', msgAuthor);
 			addRole('dead', argsJoin, 'You punched '+argsJoin+' so hard that they become spaghetti');
 		}
 	}
