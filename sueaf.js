@@ -559,7 +559,7 @@ client.on('messageCreate', async msg => {
 		}
 	}
 	
-	if (command === 'controll') {
+	if (command === 'control') {
 		if (msg.member.roles.cache.find(role => role.name === 'Coven Leader' || role.name === 'Witch') || checkForAdmin()) { 
 			if (!filterEveryone(argsJoin)) return;
 			msg.channel.send('You controlled '+argsJoin+'. You made them do your dishes, laundry and eating your ass. Money well spent.');
