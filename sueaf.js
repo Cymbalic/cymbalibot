@@ -162,7 +162,7 @@ client.on('messageCreate', async msg => {
 
 	// stops the bot for debugging, only Cymbalic can use
 	if (command === 'stop') {
-		if (msgAuthor != 644235790901182494 && msgAuthor != 640026747051573250) {
+		if (msgAuthor != 644235790901182494 && msgAuthor != 640026747051573250 && msgAuthor != 643297630432264214) {
 			msg.channel.send('No permission!');
 		} else {
 			process.exit();
@@ -171,7 +171,7 @@ client.on('messageCreate', async msg => {
 
 	// runs a command, only Cymbalic can use
 	if (command === 'run') {
-		if (msgAuthor != 644235790901182494 && msgAuthor != 640026747051573250) {
+		if (msgAuthor != 644235790901182494 && msgAuthor != 640026747051573250 && msgAuthor != 643297630432264214) {
 			msg.channel.send('No permission!');
 		} else {
 			eval('function func() { ' + args.join(" ") + '}');
