@@ -132,20 +132,6 @@ client.on('messageCreate', async msg => {
   if (command === 'stop' && isPrivileged) {
     process.exit();
 	}
-	
-	if (command === 'finish') {
-		try {
-    assignValue(reminders, msg.channel.name, true);
-		fs.writeFile(fileName2, JSON.stringify(reminders), function writeJSON(err) {
-			if (err) {
-				throw err;
-			}
-			console.log('writing to ' + fileName2);
-		});
-		} catch(err) {
-			msg.channel.send('Something went wrong. Error: '+err);
-		}
-	}
 
 	// runs a command
   if (command === 'run' && isPrivileged) {
@@ -201,6 +187,25 @@ client.on('messageCreate', async msg => {
 			msg.channel.send('Something went wrong. Error: '+err);
 			const errchannel = msg.guild.channels.cache.find(channel => channel.name == topic);
 			if (errchannel) errchannel.delete();
+		}
+	}
+	
+	if (command === 'setreminder' || command === 'sr') {
+		assignValue(reminders, msg.channel.name, false);
+		msg.channel.send(msg.channel.name+' added to reminder list.');
+	}
+	
+	if (command === 'finish') {
+		try {
+    assignValue(reminders, msg.channel.name, true);
+		fs.writeFile(fileName2, JSON.stringify(reminders), function writeJSON(err) {
+			if (err) {
+				throw err;
+			}
+			console.log('writing to ' + fileName2);
+		});
+		} catch(err) {
+			msg.channel.send('Something went wrong. Error: '+err);
 		}
 	}
 	
