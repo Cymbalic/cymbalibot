@@ -2,8 +2,10 @@ const fs = require('fs');
 const { PermissionsBitField, Client, GatewayIntentBits, ChannelType } = require('discord.js');
 const fileName1 = './votes.json';
 const fileName2 = './reminders.json';
+const fileName3 = './remindM.json';
 const votes = require(fileName1);
 const reminders = require(fileName2);
+const remindMessage = require(fileName3);
 
 const allianceCategory = 'alliances'; // all lowercase
 const specChannels = [694422951092813824]; // number ids
@@ -44,6 +46,12 @@ function validateSnowflake(snowflake) {
 	return timestamp
 }
 
+function writeJSON(err) {
+	if (err) {
+		throw err;
+	}
+}
+
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
@@ -81,15 +89,6 @@ client.on('messageCreate', async msg => {
       obj[prop[0]] = value;
     }
   }
-	
-	function remind() {
-		let channel = null;
-		for (let i in reminders) {
-			if (reminders[i]) continue;
-			channel = msg.guild.channels.cache.find(channel => channel.name == i);
-			channel.send('@Player, reminder to do x.');
-		}
-	}
   
   const args = msg.content.slice(prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
@@ -190,22 +189,41 @@ client.on('messageCreate', async msg => {
 		}
 	}
 	
-	if (command === 'setreminder' || command === 'setr') {
+	if ((command === 'remind' || command === 'r') && hasAdmin) {
+		let channel = null;
+		for (let i in reminders) {
+			if (reminders[i]) continue;
+			channel = msg.guild.channels.cache.find(channel => channel.name == i);
+			channel.send(remindMessage[0]);
+		}
+		msg.channel.send('Reminder sent.');
+	}
+	
+	if ((command === 'remindmessage' || command === 'mesr') && hasAdmin) {
+		try {
+		assignValue(remindMessage, remindMessage[0], argsJoin);
+		fs.writeFile(fileName3, JSON.stringify(remindMessage), writeJSON);
+		} catch(err) {
+			msg.channel.send('Something went wrong. Error: '+err);
+		}
+	}
+	
+	if ((command === 'setreminder' || command === 'setr') && hasAdmin) {
+		try {
 		assignValue(reminders, msg.channel.name, false);
+		fs.writeFile(fileName2, JSON.stringify(reminders), writeJSON);
+		} catch(err) {
+			msg.channel.send('Something went wrong. Error: '+err);
+		}
 		msg.channel.send(msg.channel.name+' added to reminder list.');
 	}
 	
-	if (command === 'resetreminders' || command === 'resr') {
+	if ((command === 'resetreminders' || command === 'resr') && hasAdmin) {
 		try {
 		for (let i in reminders) {
 			assignValue(reminders, i, false);
 		}
-		fs.writeFile(fileName2, JSON.stringify(reminders), function writeJSON(err) {
-			if (err) {
-				throw err;
-			}
-			console.log('writing to ' + fileName2);
-		});
+		fs.writeFile(fileName2, JSON.stringify(reminders), writeJSON);
 		} catch(err) {
 			msg.channel.send('Something went wrong. Error: '+err);
 		}
@@ -214,12 +232,7 @@ client.on('messageCreate', async msg => {
 	if (command === 'finish') {
 		try {
     assignValue(reminders, msg.channel.name, true);
-		fs.writeFile(fileName2, JSON.stringify(reminders), function writeJSON(err) {
-			if (err) {
-				throw err;
-			}
-			console.log('writing to ' + fileName2);
-		});
+		fs.writeFile(fileName2, JSON.stringify(reminders), writeJSON);
 		} catch(err) {
 			msg.channel.send('Something went wrong. Error: '+err);
 		}
@@ -233,7 +246,7 @@ client.on('messageCreate', async msg => {
     });
 	}
 
-	if (msg.guild.id != '694391465673228318') return;
+	//if (msg.guild.id != '694391465673228318') return;
 	
 	// sends a link to the ranked spreadsheet
   if (command === 'spreadsheet' || command === 'sheet') {
@@ -250,13 +263,8 @@ client.on('messageCreate', async msg => {
 			} else {
 				if (!isValidMessage(args[0])) throw 'Invalid Vote';
 				assignValue(votes, msgAuthorUsername, argsJoin);
-				fs.writeFile(fileName1, JSON.stringify(votes), function writeJSON(err) {
-					if (err) {
-						throw err;
-					}
-					msg.channel.send('Vote accepted.');
-					console.log('writing to ' + fileName1);
-				});
+				fs.writeFile(fileName1, JSON.stringify(votes), writeJSON);
+				msg.channel.send('Vote accepted.');
 			}
     }
 		} catch (err) {
@@ -264,19 +272,12 @@ client.on('messageCreate', async msg => {
 		}
   }
 
-
   // same as !vote but used by admins to manually set votes for other players
   if (command === 'setvote' && hasAdmin) {
 		try {
 			assignValue(votes, args[0], args[1]);
-			fs.writeFile(fileName1, JSON.stringify(votes), function writeJSON(err) {
-				if (err) {
-					throw err;
-				} else {
-					msg.channel.send('Vote accepted.');
-					console.log('writing to ' + fileName1);
-				}
-			});
+			fs.writeFile(fileName1, JSON.stringify(votes), writeJSON);
+			msg.channel.send('Vote accepted.');
 		} catch(err) {
 			msg.channel.send('Something went wrong. Error: ' + err);
 		}
@@ -286,18 +287,12 @@ client.on('messageCreate', async msg => {
   if (command === 'dvote' && hasAdmin) {
   try {
     assignValue(votes, args[0], '');
-    fs.writeFile(fileName1, JSON.stringify(votes), function writeJSON(err) {
-      if (err) {
-        throw err;
-      } else {
-        msg.channel.send('Vote deleted.');
-        console.log('writing to ' + fileName1);
-      }
-    });
+    fs.writeFile(fileName1, JSON.stringify(votes), writeJSON);
+    msg.channel.send('Vote deleted.');
   } catch(err) {
     msg.channel.send('Something went wrong. Error: ' + err);
-  }
-}
+	}
+	}
  
   // gets all votes if used by admin or in specified channel
 	if (command === 'voting') {
@@ -320,14 +315,8 @@ client.on('messageCreate', async msg => {
     Object.entries(votes).forEach(([key, value]) =>
 			assignValue(votes, key, '')
 		);
-		fs.writeFile(fileName1, JSON.stringify(votes), function writeJSON(err) {
-      if (err) {
-				return console.log(err);
-			} else {
-				msg.channel.send('All votes deleted.');
-				console.log('writing to ' + fileName1);
-			}
-		});
+		fs.writeFile(fileName1, JSON.stringify(votes), writeJSON);
+		msg.channel.send('All votes deleted.');
   }
 });
 
