@@ -248,7 +248,7 @@ client.on('messageCreate', async msg => {
     });
 	}
 
-	//if (msg.guild.id != '694391465673228318') return;
+	if (msg.guild.id != '694391465673228318') return;
 	
 	// sends a link to the ranked spreadsheet
   if (command === 'spreadsheet' || command === 'sheet') {
