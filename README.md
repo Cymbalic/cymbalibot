@@ -1,1 +1,2 @@
 # cymbalibot
+Mostly for !alliance

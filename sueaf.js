@@ -10,7 +10,7 @@ client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
 });
 
-client.on('debug', console.log);
+//client.on('debug', console.log);
 
 // actual bot code
 client.on('messageCreate', async msg => {
@@ -101,7 +101,8 @@ client.on('messageCreate', async msg => {
 	}
 
 	// stock function from discord.js guide, thank you discord.js guide
-	function getUserFromMention(mention) {
+	async function getUserFromMention(mention) {
+		// try mention
 		if (mention.startsWith('<@') && mention.endsWith('>')) {
 			mention = mention.slice(2, -1);
 			if (mention.startsWith('!')) {
@@ -109,9 +110,13 @@ client.on('messageCreate', async msg => {
 			}
 			return client.users.cache.get(mention);
 		} else {
+			// try id
 			let x = client.users.cache.get(mention);
 			if (x === undefined) {
-				return null;
+				// try username
+				//let x = await client.users.cache.find(user => user.username = mention);
+				if (x === undefined) return null; // fail
+				return x;
 			} else {
 				return x;
 			}
@@ -137,6 +142,7 @@ client.on('messageCreate', async msg => {
 			if (x == 'shut up exe') msg.channel.send('and friends');
 			if (x == 'jester') msg.channel.send('<:clown:723860290739109890>');
 			if (x == 'snooze') msg.channel.send('u lose');
+			if (x == 'gm ylid') msg.channel.send('good morning ylid <3');
 			return;
 		} 
 
@@ -303,10 +309,8 @@ client.on('messageCreate', async msg => {
 	
 	if (command === 'pest') {
 		if (msg.member.roles.cache.find(role => role.name === 'Pestilence') || checkForAdmin()) {
-			if (!msg.member.roles.cache.find(role => role.name === 'roleblocked') || checkForAdmin()) {
-				if (!filterEveryone(argsJoin)) return;
-				addRole('dead', argsJoin, "You cough on "+argsJoin+" instantly killing him. Should've worn a mask.");
-			}
+			if (!filterEveryone(argsJoin)) return;
+			addRole('dead', argsJoin, "You cough on "+argsJoin+" instantly killing him. Should've worn a mask.");
 		}
 	}
 	
@@ -348,7 +352,12 @@ client.on('messageCreate', async msg => {
 	if (command === 'roleblock' || command === 'rb') {
 		if (msg.member.roles.cache.find(role => role.name === 'Escort' || role.name === 'Consort') || checkForAdmin()) {
 			if (!filterEveryone(argsJoin)) return;
-			addRole('roleblocked', argsJoin, 'You distracted '+argsJoin+' with your distraction dance, after being charged with sexual allegations against minors.');
+			console.log(await getUserFromMention(argsJoin));
+			/*if (getUserFromMention(argsJoin).roles.cache.find(role => role.name === 'Pestilence') && !checkForAdmin()) {
+				addRole('dead', msgAuthor, 'You were attacked by Pestilence!');
+				return;
+			}*/
+			//addRole('roleblocked', argsJoin, 'You distracted '+argsJoin+' with your distraction dance, after being charged with sexual allegations against minors.');
 		}
 	}
 	
