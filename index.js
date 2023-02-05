@@ -190,9 +190,25 @@ client.on('messageCreate', async msg => {
 		}
 	}
 	
-	if (command === 'setreminder' || command === 'sr') {
+	if (command === 'setreminder' || command === 'setr') {
 		assignValue(reminders, msg.channel.name, false);
 		msg.channel.send(msg.channel.name+' added to reminder list.');
+	}
+	
+	if (command === 'resetreminders' || command === 'resr') {
+		try {
+		for (let i in reminders) {
+			assignValue(reminders, i, false);
+		}
+		fs.writeFile(fileName2, JSON.stringify(reminders), function writeJSON(err) {
+			if (err) {
+				throw err;
+			}
+			console.log('writing to ' + fileName2);
+		});
+		} catch(err) {
+			msg.channel.send('Something went wrong. Error: '+err);
+		}
 	}
 	
 	if (command === 'finish') {
