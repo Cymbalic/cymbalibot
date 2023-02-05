@@ -191,21 +191,23 @@ client.on('messageCreate', async msg => {
 	
 	if ((command === 'remind' || command === 'r') && hasAdmin) {
 		let channel = null;
+		let text = remindMessage.message;
 		for (let i in reminders) {
 			if (reminders[i]) continue;
 			channel = msg.guild.channels.cache.find(channel => channel.name == i);
-			channel.send(remindMessage[0]);
+			channel.send(text);
 		}
 		msg.channel.send('Reminder sent.');
 	}
 	
 	if ((command === 'remindmessage' || command === 'mesr') && hasAdmin) {
 		try {
-		assignValue(remindMessage, remindMessage[0], argsJoin);
+		assignValue(remindMessage, 'message', argsJoin);
 		fs.writeFile(fileName3, JSON.stringify(remindMessage), writeJSON);
 		} catch(err) {
 			msg.channel.send('Something went wrong. Error: '+err);
 		}
+		msg.channel.send('Message updated.');
 	}
 	
 	if ((command === 'setreminder' || command === 'setr') && hasAdmin) {
@@ -229,7 +231,7 @@ client.on('messageCreate', async msg => {
 		}
 	}
 	
-	if (command === 'finish') {
+	if (command === 'noremind' || command === 'nr') {
 		try {
     assignValue(reminders, msg.channel.name, true);
 		fs.writeFile(fileName2, JSON.stringify(reminders), writeJSON);
