@@ -129,9 +129,32 @@ client.on('messageCreate', async msg => {
 			case 'alliance':
 				msg.channel.send('Creates a channel in the "Alliances" category with the roles specified.\nAlias: !a');
 				break;
-      default:
-        msg.channel.send('!help\n!ping\n!say\n!alliance\n!snowflake\n**Ranked Exclusive**\n!vote\n!voting\n!dvote\n!dvotes\n!setvote');
-        break;
+			case 'snowflake':
+				msg.channel.send('Calculates the time between two snowflakes (message IDs).\nAlias: !s');
+				break;
+			case 'remind':
+				msg.channel.send('Sends a message to all channels where !setreminder has been used with the message specified by !remindmessage.\nAlias: !r');
+				break;
+			case 'noremind':
+				msg.channel.send('Prevents reminders from being sent in this channel until !resetreminders is used.\nAlias: !nr');
+				break;
+			case 'setreminder':
+				msg.channel.send('Sets this channel to receive reminders from !remind.\nAlias: !setr');
+				break;
+			case 'remindmessage':
+				msg.channel.send('Sets the message to be sent when using !remind.\nAlias: !mesr');
+				break;
+			case 'resetreminders':
+				msg.channel.send('Enables all channels where !setreminder was used to once again receive reminders after !noremind was used.\nAlias: !resr');
+				break;
+			case '2':
+				msg.channel.send('**Ranked Exclusive**\n!vote\n!voting\n!dvote\n!dvotes\n!setvote\nUse **!help 3** for more.');
+				break;
+			case '3':
+				msg.channel.send('!remind\n!noremind\n!setreminder\n!remindmessage\n!resetreminders');
+				break;
+			default:
+        msg.channel.send('!help\n!ping\n!say\n!alliance\n!snowflake\n\nUse **!help 2** for more.');
     }
   }
 
@@ -194,7 +217,7 @@ client.on('messageCreate', async msg => {
 		});
 		let role = null;
 		for (let i = 0; i < args.length; i++) {
-			role = msg.guild.roles.cache.find(r => r.name === args[i]);
+			role = msg.guild.roles.cache.find(r => r.name.toLowerCase() === args[i].toLowerCase());
 			if (!role) throw 'Invalid role(s)';
 			channel.permissionOverwrites.edit(role, { ViewChannel: true });
 		}
@@ -257,7 +280,7 @@ client.on('messageCreate', async msg => {
 		}
 	}
 	
-	if (command === 'snowflake') {
+	if (command === 'snowflake' || command === 's') {
 		try {
     const snowflake1 = validateSnowflake(args[0]);
 		const snowflake2 = validateSnowflake(args[1]);
