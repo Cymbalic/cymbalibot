@@ -39,7 +39,7 @@ function validateSnowflake(snowflake) {
 	if (snowflake < 4194304) {
 		throw 'Too small snowflake';
 	}
-	const timestamp = convertSnowflakeToDate(snowflake, epoch)
+	const timestamp = convertSnowflakeToDate(snowflake)
 	if (Number.isNaN(timestamp.getTime())) {
 		throw 'Too big snowflake';
 	}
@@ -49,6 +49,24 @@ function validateSnowflake(snowflake) {
 function writeJSON(err) {
 	if (err) {
 		throw err;
+	}
+}
+
+function msToTime(s) {
+  function pad(n, z) {
+    z = z || 2;
+    return ('00'+n).slice(-z);
+  }
+  let ms = s % 1000;
+  s = (s - ms) / 1000;
+  let secs = s % 60;
+  s = (s - secs) / 60;
+  let mins = s % 60;
+  let hrs = (s - mins) / 60;
+	if (hrs > 0) {
+		return hrs+':'+pad(mins)+':'+pad(secs)+'.'+pad(ms, 3);
+	} else {
+		return mins+':'+pad(secs)+'.'+pad(ms, 3);
 	}
 }
 
@@ -94,11 +112,10 @@ client.on('messageCreate', async msg => {
   const command = args.shift().toLowerCase();
 
   const argsJoin = args.join(' ');
-  const msgAuthorID = msg.author.id;
 	const msgAuthorUsername = msg.author.username;
 	const hasAdmin = msg.member.permissions.has(PermissionsBitField.Flags.Administrator);
 	const hasMChannels = msg.member.permissions.has(PermissionsBitField.Flags.ManageChannels);
-	const isPrivileged = privilegedUsers.includes(msgAuthorID);
+	const isPrivileged = privilegedUsers.includes(msg.author.id);
 	const isSpecChannel = specChannels.includes(msg.channel.id);
 
   if (command === 'help') {
@@ -113,7 +130,7 @@ client.on('messageCreate', async msg => {
 				msg.channel.send('Creates a channel in the "Alliances" category with the roles specified.\nAlias: !a');
 				break;
       default:
-        msg.channel.send('!help\n!ping\n!say\n!alliance\n\n**Ranked Exclusive**\n!vote\n!voting\n!dvote\n!dvotes\n!setvote');
+        msg.channel.send('!help\n!ping\n!say\n!alliance\n!snowflake\n**Ranked Exclusive**\n!vote\n!voting\n!dvote\n!dvotes\n!setvote');
         break;
     }
   }
@@ -241,11 +258,17 @@ client.on('messageCreate', async msg => {
 	}
 	
 	if (command === 'snowflake') {
-    const startTime = Date.now();
-    msg.channel.send('Pinging...').then((pingMessage) => {
-      const endTime = Date.now();
-      pingMessage.edit(`Pong! ${endTime - startTime}ms.`);
-    });
+		try {
+    const snowflake1 = validateSnowflake(args[0]);
+		const snowflake2 = validateSnowflake(args[1]);
+		if (snowflake1-snowflake2 > 0) { 
+			msg.channel.send(msToTime(snowflake1-snowflake2)); 
+		} else { 
+			msg.channel.send(msToTime(snowflake2-snowflake1)); 
+		}
+		} catch(err) {
+			msg.channel.send('Something went wrong. Error: '+err);
+		}
 	}
 
 	if (msg.guild.id != '694391465673228318') return;
