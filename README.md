@@ -1,4 +1,5 @@
 # cymbalibot
 Mostly for !alliance
+-
 Join ranked:
-https://discord.gg/z54UCTMMdq
+https://discord.gg/Qrkj8ubDdw
