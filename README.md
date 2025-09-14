@@ -1,5 +1,5 @@
 # cymbalibot
-Mostly for !alliance
+Mostly for **Quack**
 -
 Join ranked:
 https://discord.gg/Qrkj8ubDdw
